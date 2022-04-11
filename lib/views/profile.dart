@@ -263,25 +263,6 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
               ],
             ),
           )
-          // TabBarView(
-          //   controller: _tabController,
-          //   children: [
-          //     Container(
-          //       child: ListView.separated(
-          //         itemBuilder: (BuildContext context, int index) {
-          //           return posts[index];
-          //         },
-          //         separatorBuilder: (BuildContext context, int index) => Divider(
-          //           height: 0,
-          //         ),
-          //         itemCount: posts.length,
-          //       ),
-          //     ),
-          //     Text("2"),
-          //     Text("3"),
-          //     Text("4")
-          //   ]
-          // )
         ],
       )
     );
