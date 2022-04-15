@@ -1,3 +1,4 @@
+import 'package:ashesicom/views/newPost.dart';
 import 'package:flutter/material.dart';
 import '../services/auth.dart';
 import '../widgetGenerators/posts.dart';
@@ -19,7 +20,12 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFFAF3A42),
         child: const Icon(Icons.add),
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => NewPost())
+          );
+        },
       ),
       body: listOfPost()
     );
@@ -31,7 +37,7 @@ class _HomePageState extends State<HomePage> {
         itemBuilder: (BuildContext context, int index) {
           return posts[index];
         },
-        separatorBuilder: (BuildContext context, int index) => Divider(
+        separatorBuilder: (BuildContext context, int index) => const Divider(
           height: 0,
         ),
         itemCount: posts.length,
