@@ -3,7 +3,6 @@ import 'package:ashesicom/views/homepage.dart';
 import 'package:ashesicom/views/profile.dart';
 import 'package:ashesicom/views/search.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../services/auth.dart';
 import 'login.dart';
@@ -80,20 +79,20 @@ class _ScreenManagerState extends State<ScreenManager> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        floatingActionButton: _clickedProfile == false ? null : Container(
-          height: 80,
-          child: FittedBox(
-            child: FloatingActionButton(
-              backgroundColor: const Color(0xFFD0BBC4),
-              elevation: 0,
-              onPressed: (){},
-              child: const CircleAvatar(
-                radius: 25,
-                backgroundImage: AssetImage("assets/images/profile.jpeg"),
-              ),
-            ),
-          ),),
-        floatingActionButtonLocation: _clickedProfile == false ? null : FloatingActionButtonLocation.startTop,
+        // floatingActionButton: _clickedProfile == false ? null : Container(
+        //   height: 80,
+        //   child: FittedBox(
+        //     child: FloatingActionButton(
+        //       backgroundColor: const Color(0xFFD0BBC4),
+        //       elevation: 0,
+        //       onPressed: (){},
+        //       child: const CircleAvatar(
+        //         radius: 25,
+        //         backgroundImage: AssetImage("assets/images/profile.jpeg"),
+        //       ),
+        //     ),
+        //   ),),
+        // floatingActionButtonLocation: _clickedProfile == false ? null : FloatingActionButtonLocation.startTop,
         body: _clickedProfile == false ? _getPage(_selectedIndex) : _getProfile(),
         appBar: _clickedProfile == false ? AppBar(
           backgroundColor: const Color(0xFFD0BBC4),
@@ -149,7 +148,7 @@ class _ScreenManagerState extends State<ScreenManager> {
                 )
             )
           ],
-        ) : _profileAppBar(),
+        ) : null,
         bottomNavigationBar: BottomNavigationBar(
           backgroundColor: const Color(0xFFD0BBC4),
           type: BottomNavigationBarType.fixed,

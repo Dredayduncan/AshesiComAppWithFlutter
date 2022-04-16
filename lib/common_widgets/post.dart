@@ -125,7 +125,13 @@ class Post extends StatelessWidget {
             },
             child: PostIconButton(FontAwesomeIcons.comment, comments)
           ),
-          PostIconButton(FontAwesomeIcons.retweet, reposts),
+          GestureDetector(
+            child: PostIconButton(
+              FontAwesomeIcons.retweet, 
+              reposts
+            ),
+            onTap: () => _onRepostPressed(context),
+          ),
           PostIconButton(FontAwesomeIcons.heart, favorites),
           PostIconButton(FontAwesomeIcons.share, ''),
         ],
@@ -155,4 +161,38 @@ class Post extends StatelessWidget {
       ],
     );
   }
+
+  void _onRepostPressed(BuildContext context) {
+    showModalBottomSheet(context: context, builder: (context){
+      return Container(
+        height: 100,
+        color: const Color(0xFF737373),
+        child: Container(
+          child: _buildRepostModal(),
+          decoration: const BoxDecoration(
+              color: Color(0xFFD0BBC4),
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(10.0),
+                  topRight: Radius.circular(10.0)
+              )
+          ),
+        ),
+
+      );
+    });
+  }
+
+  Column _buildRepostModal(){
+    return Column(
+      children: [
+        ListTile(
+          leading: Icon(FontAwesomeIcons.retweet),
+          title: Text("Repost"),
+          onTap: (){},
+        ),
+      ],
+    );
+  }
+
+
 }

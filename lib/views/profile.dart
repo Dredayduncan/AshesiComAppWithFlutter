@@ -1,3 +1,4 @@
+import 'package:ashesicom/views/editProfile.dart';
 import 'package:flutter/material.dart';
 import '../services/auth.dart';
 import '../widgetGenerators/posts.dart';
@@ -63,7 +64,8 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
               backgroundImage: AssetImage("assets/images/profile.jpeg"),
             ),
           ),
-        ),),
+        ),
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
       body: Column(
         children: [
@@ -109,7 +111,12 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                           color: Color(0xFFAF3A42)
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const EditProfile())
+                        );
+                      },
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(
                             const Color(0xFFD0BBC4)
@@ -196,81 +203,83 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
               ],
             ),
           ),
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                TabBar(
-                  controller: _tabController,
-                  indicatorColor: const Color(0xFFAF3A42),
-                  labelColor: const Color(0xFFAF3A42),
-                  unselectedLabelColor: const Color(0xFF808083),
-                  tabs: const [
-                    Tab(
-                      child: Text(
-                        "Post",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16
-                        ),
-                      ),
-
-                    ),
-                    Tab(
-                      child: Text(
-                        "Reposts",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16
-                        ),
-                      ),
-                    ),
-                    Tab(
-                      child: Text(
-                        "Media",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16
-                        ),
-                      ),
-                    ),
-                    Tab(
-                      child: Text(
-                        "Likes",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Container(
-                    height: MediaQuery.of(context).size.height - 403.2,
-                    width: MediaQuery.of(context).size.width -2,
-                    child: TabBarView(
-                      controller: _tabController,
-                      children: [
-                      Container(
-                        child: ListView.separated(
-                          itemBuilder: (BuildContext context, int index) {
-                            return posts[index];
-                          },
-                          separatorBuilder: (BuildContext context, int index) => Divider(
-                            height: 0,
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  TabBar(
+                    controller: _tabController,
+                    indicatorColor: const Color(0xFFAF3A42),
+                    labelColor: const Color(0xFFAF3A42),
+                    unselectedLabelColor: const Color(0xFF808083),
+                    tabs: const [
+                      Tab(
+                        child: Text(
+                          "Post",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16
                           ),
-                          itemCount: posts.length,
+                        ),
+
+                      ),
+                      Tab(
+                        child: Text(
+                          "Reposts",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16
+                          ),
                         ),
                       ),
-                        Text("Second"),
-                        Text("Third"),
-                        Text("Fourth")
-                      ]
-                    ),
+                      Tab(
+                        child: Text(
+                          "Media",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16
+                          ),
+                        ),
+                      ),
+                      Tab(
+                        child: Text(
+                          "Likes",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16
+                          ),
+                        ),
+                      )
+                    ],
                   ),
-                )
-              ],
+                  Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Container(
+                      height: MediaQuery.of(context).size.height - 403.2,
+                      width: MediaQuery.of(context).size.width -2,
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: [
+                        Container(
+                          child: ListView.separated(
+                            itemBuilder: (BuildContext context, int index) {
+                              return posts[index];
+                            },
+                            separatorBuilder: (BuildContext context, int index) => Divider(
+                              height: 0,
+                            ),
+                            itemCount: posts.length,
+                          ),
+                        ),
+                          Text("Second"),
+                          Text("Third"),
+                          Text("Fourth")
+                        ]
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
           )
         ],

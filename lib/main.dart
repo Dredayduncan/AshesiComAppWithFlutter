@@ -14,7 +14,8 @@ Future<void> main() async {
         home: LandingPage(),
         theme: ThemeData(
           fontFamily: "SF Pro",
-          scaffoldBackgroundColor: const Color(0xFFD0BBC4)
+          scaffoldBackgroundColor: const Color(0xFFD0BBC4),
+          canvasColor: const Color(0xFFD0BBC4)
         ),
       )
   );
