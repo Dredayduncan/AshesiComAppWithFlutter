@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:timeago/timeago.dart' as timeago;
+import 'package:ashesicom/common_widgets/message.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -30,7 +34,7 @@ class Database {
 
       if (element["following"] != null && element["following"].id == uid) {
         // Increment total if found
-        totalFollowing.add(element["following"].id);
+        totalFollowing.add(element["followed"].id);
       }
     }
 
@@ -40,21 +44,113 @@ class Database {
   // USER FUNCTIONS
 
   // Make a post
+  Future<bool> post({poster, text, image}) async {
+    // Get the data
+    CollectionReference posts = FirebaseFirestore.instance.collection("Posts");
+
+    int len = 0;
+    await posts.get().then((value) => len = value.docs.length);
+
+    return posts.doc(len.toString()).set({
+      "postID": len,
+      "poster": FirebaseFirestore.instance.collection('Users').doc(poster),
+      "text": text,
+      "image": image,
+      "timePosted": DateTime.now()
+    })
+    .then((value) => true)
+    .catchError((error) => false);
+}
   
   // follow a given user
+  Future<bool> follow({currentUser, otherUser}) {
+    //Get the data
+    CollectionReference follows = FirebaseFirestore.instance.collection("Follow");
+
+    return follows.add({
+      "following": FirebaseFirestore.instance.collection('Users').doc(currentUser),
+      "followed": FirebaseFirestore.instance.collection('Users').doc(otherUser),
+    })
+        .then((value) => true)
+        .catchError((error) => false);
+  }
   
   // Retweet a given post
-  
+  Future<bool> rePost({postID}) {
+    //Get the data
+    CollectionReference follows = FirebaseFirestore.instance.collection("Reposts");
+
+    return follows.add({
+      "postID": FirebaseFirestore.instance.collection('Posts').doc(postID),
+      "rePoster": FirebaseFirestore.instance.collection('Users').doc(authID),
+    })
+        .then((value) => true)
+        .catchError((error) => false);
+  }
   // Like a given post
   
   // Comment on a given post
 
   // Check if user is following another user
-  // Future<bool> isFollowing({currentUserID, otherUserID}) async {
-  //
-  // }
+  Future<bool> isFollowing({currentUserID, otherUserID}) async {
+    // Get the data from the database
+    QuerySnapshot<Map<String, dynamic>> query = await FirebaseFirestore.instance
+        .collection("Follow")
+        .get();
+
+    // Get the following data
+    var following = query.docs.map((data) => data.data());
+
+    // Loop through the data to count the number of people the user is following
+    for (var element in following) {
+
+      if (
+        element["following"] != null
+        && element["following"].id == currentUserID
+        && element['followed'].id == otherUserID
+      ) {
+        // return true if the current user follows the other user
+        return true;
+      }
+    }
+
+    return false;
+  }
 
   // Get user's messages
+  Future<List> getUserMessages({uid}) async {
+    // Get the data from the database
+    QuerySnapshot<Map<String, dynamic>> query = await FirebaseFirestore.instance
+        .collection("Messages")
+        .get();
+
+    // Get the user's posts
+    var messages = query.docs.map((data) => data.data());
+
+    final allMessages = [];
+
+    // Loop through the data to count the number of people the user is following
+    for (var message in messages) {
+      if (message["sender"].id == uid) {
+
+        // Get the recipient's info
+        Map<String, dynamic>? recipient = await getUserInfo(uid: message['recipient']);
+
+        // Add to messages if found
+        allMessages.add(
+          Message(
+            recipient: recipient,
+            authID: authID,
+            chatID: message['chatID'],
+          )
+        );
+      }
+    }
+
+    return allMessages;
+  }
+
+  // Get user's chat
 
   // Get user's info
   Future<Map<String, dynamic>?> getUserInfo({uid}) async {
@@ -145,12 +241,14 @@ class Database {
         // Add to posts if found
         allPosts.add(
           Post(
+            postID: post["postID"],
             authID: authID,
             avatar: 'https://pbs.twimg.com/profile_images/1187814172307800064/MhnwJbxw_400x400.jpg',
             username: uid,
             name: userInfo!['displayName'],
-            timeAgo: post['timePosted'],
+            timeAgo: timeago.format(post['timePosted'].toDate(), locale: 'en_short'),
             text: post['text'],
+            media: post['image'],
             comments: comments.toString(),
             reposts: reposts.toString(),
             favorites: likes.toString(),
@@ -179,6 +277,7 @@ class Database {
 
     // Loop through the data to count the number of people the user is following
     for (var post in posts) {
+
       if (post["poster"].id == uid && post['image'] != "") {
 
         // Get the number of comments, likes and reposts on the post
@@ -189,11 +288,12 @@ class Database {
         // Increment total if found
         allPostsWithMedia.add(
             Post(
+              postID: post["postID"],
               authID: authID,
               avatar: 'https://pbs.twimg.com/profile_images/1187814172307800064/MhnwJbxw_400x400.jpg',
               username: uid,
               name: userInfo!['displayName'],
-              timeAgo: post['timePosted'],
+              timeAgo:  timeago.format(post['timePosted'].toDate(), locale: 'en_short'),
               text: post['text'],
               comments: comments.toString(),
               reposts: reposts.toString(),
@@ -251,11 +351,12 @@ class Database {
         // Increment total if found
         allReposts.add(
             Post(
+              postID: post["postID"],
               authID: authID,
               avatar: 'https://pbs.twimg.com/profile_images/1187814172307800064/MhnwJbxw_400x400.jpg',
               username: item['username'],
               name: posterInfo!['displayName'],
-              timeAgo: item['timePosted'],
+              timeAgo:  timeago.format(item['timePosted'].toDate(), locale: 'en_short'),
               text: item['text'],
               comments: comments.toString(),
               reposts: reposts.toString(),
@@ -299,11 +400,12 @@ class Database {
         // Increment total if found
         allLikes.add(
             Post(
+              postID: post["postID"],
               authID: authID,
               avatar: 'https://pbs.twimg.com/profile_images/1187814172307800064/MhnwJbxw_400x400.jpg',
               username: item['username'],
               name: posterInfo!['displayName'],
-              timeAgo: item['timePosted'],
+              timeAgo:  timeago.format(item['timePosted'].toDate(), locale: 'en_short'),
               text: item['text'],
               comments: comments.toString(),
               reposts: reposts.toString(),
@@ -348,11 +450,12 @@ class Database {
         // Increment total if found
         allComments.add(
             Post(
+              postID: post["postID"],
               authID: authID,
               avatar: 'https://pbs.twimg.com/profile_images/1187814172307800064/MhnwJbxw_400x400.jpg',
               username: item['username'],
               name: posterInfo!['displayName'],
-              timeAgo: item['timePosted'],
+              timeAgo:  timeago.format(item['timePosted'].toDate(), locale: 'en_short'),
               text: item['text'],
               comments: comments.toString(),
               reposts: reposts.toString(),
@@ -377,6 +480,10 @@ class Database {
 
     int numComments = 0;
 
+    if (posts.isEmpty){
+      return numComments;
+    }
+
     // Loop through the data to count the number of reposts
     for (var post in posts) {
       if (post["mainPostID"].id == postID) {
@@ -398,6 +505,11 @@ class Database {
     var posts = query.docs.map((data) => data.data());
 
     int numRePosts = 0;
+    print(posts);
+
+    if (posts.isEmpty){
+      return numRePosts;
+    }
 
     // Loop through the data to count the number of reposts
     for (var post in posts) {
@@ -420,6 +532,10 @@ class Database {
     var posts = query.docs.map((data) => data.data());
 
     int numLikes = 0;
+
+    if (posts.isEmpty){
+      return numLikes;
+    }
 
     // Loop through the data to count the number of likes on the post
     for (var post in posts) {

@@ -1,10 +1,13 @@
 import 'dart:io';
-
+import 'package:ashesicom/services/database.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:status_alert/status_alert.dart';
 
 class NewPost extends StatefulWidget {
-  NewPost({Key? key}) : super(key: key);
+  final String authID;
+
+  NewPost({Key? key,  required this.authID}) : super(key: key,);
 
   @override
   State<NewPost> createState() => _NewPostState();
@@ -12,7 +15,15 @@ class NewPost extends StatefulWidget {
 
 class _NewPostState extends State<NewPost> {
   //diplay picture
-  var _dp;
+  var _image;
+  late Database db;
+  TextEditingController _text = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    db = Database(authID: widget.authID,);
+  }
 
   Future getImage() async {
     XFile? pickedImage = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -21,7 +32,7 @@ class _NewPostState extends State<NewPost> {
 
       setState(() {
         File file = File(pickedImage.path);
-        _dp = file;
+        _image = file;
       });
 
     }
@@ -56,7 +67,36 @@ class _NewPostState extends State<NewPost> {
                       color: Colors.grey.shade400
                   ),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  db.post(
+                    poster: widget.authID,
+                    text: _text.text,
+                    image: _image.path ?? ""
+                  ).then((value) {
+                    if (value == true){
+                      StatusAlert.show(
+                        context,
+                        backgroundColor: const Color(0xFFCB6E74),
+                        duration: const Duration(seconds: 2),
+                        title: 'Success',
+                        subtitle: 'Your post was successful.',
+                        configuration: const IconConfiguration(icon: Icons.done),
+                      );
+                    }
+                    else{
+                      StatusAlert.show(
+                        context,
+                        backgroundColor: const Color(0xFFCB6E74),
+                        duration: const Duration(seconds: 2),
+                        title: 'Error',
+                        subtitle: 'Your post was unsuccessful.',
+                        configuration: const IconConfiguration(icon: Icons.error_outline),
+                      );
+                    }
+
+                    Navigator.of(context).pop();
+                  });
+                },
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all(
                       const Color(0xFFAF3A42)
@@ -92,11 +132,12 @@ class _NewPostState extends State<NewPost> {
                 ),
               ),
               const SizedBox(width: 10,),
-              const Flexible(
+              Flexible(
                 child: TextField(
+                  controller: _text,
                   keyboardType: TextInputType.multiline,
                   maxLines: null,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     border: InputBorder.none,
                     hintText: "What's going on?"
                   ),
@@ -108,8 +149,8 @@ class _NewPostState extends State<NewPost> {
             padding: const EdgeInsets.all(8.0),
             child: Container(
               alignment: Alignment.center,
-              child: _dp != null
-                  ? Image.file(_dp!, fit: BoxFit.cover,)
+              child: _image != null
+                  ? Image.file(_image!, fit: BoxFit.cover,)
                   : const Text(""),
             ),
           ),

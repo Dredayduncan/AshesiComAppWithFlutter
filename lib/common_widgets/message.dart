@@ -8,10 +8,17 @@ import '../views/chatPage.dart';
 import 'customText.dart';
 
 class Message extends StatelessWidget {
-  final String id;
+  final Map<String, dynamic>? recipient;
   String? lastMessage;
   final String authID;
-  Message({Key? key, required this.id, required this.authID}) : super(key: key);
+  final String chatID;
+
+  Message({
+    Key? key,
+    required this.chatID,
+    required this.recipient,
+    required this.authID
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

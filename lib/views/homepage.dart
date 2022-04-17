@@ -15,7 +15,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late List post;
+  late List posts;
   late Database db;
   Widget _currentPage = const Scaffold(
     body: Center(
@@ -26,7 +26,7 @@ class _HomePageState extends State<HomePage> {
   );
 
   generatePosts() async {
-    post = await db.getFeed();
+    posts = await db.getFeed();
     setState(() {
       _currentPage = _buildContent();
     });
@@ -55,7 +55,7 @@ class _HomePageState extends State<HomePage> {
         onPressed: () {
           Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => NewPost())
+              MaterialPageRoute(builder: (context) => NewPost(authID: "dreday",))
           );
         },
       ),

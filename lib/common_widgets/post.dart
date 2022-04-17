@@ -1,11 +1,14 @@
+import 'dart:io';
+
 import 'package:ashesicom/common_widgets/rippleButton.dart';
+import 'package:ashesicom/services/database.dart';
 import 'package:ashesicom/views/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../views/viewPost.dart';
 
-class Post extends StatelessWidget {
+class Post extends StatefulWidget {
   final String avatar;
   final String username;
   final String name;
@@ -16,9 +19,11 @@ class Post extends StatelessWidget {
   final String favorites;
   final String? media;
   final String authID;
+  final String postID;
 
   const Post(
       {Key? key,
+        required this.postID,
         required this.authID,
         required this.avatar,
         required this.username,
@@ -31,6 +36,19 @@ class Post extends StatelessWidget {
         required this.favorites})
       : super(key: key);
 
+  @override
+  State<Post> createState() => _PostState();
+}
+
+class _PostState extends State<Post> {
+  late Database _db;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _db = Database(authID: widget.authID);
+  }
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -48,17 +66,17 @@ class Post extends StatelessWidget {
   Widget PostAvatar(context) {
     return RippleButton(
       onPressed: () {
-        print(username);
+        print(widget.username);
         Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => Profile(authID: authID, uid: username,))
+            MaterialPageRoute(builder: (context) => Profile(authID: widget.authID, uid: widget.username,))
         );
       },
       borderRadius: BorderRadius.circular(28),
       child: Container(
         margin: const EdgeInsets.all(10.0),
         child: CircleAvatar(
-          backgroundImage: NetworkImage(avatar),
+          backgroundImage: NetworkImage(widget.avatar),
         ),
       ),
     );
@@ -79,6 +97,15 @@ class Post extends StatelessWidget {
             },
             child: PostText()
           ),
+          widget.media != null ? Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              alignment: Alignment.center,
+              child: widget.media != ""
+                ? Image.file(File(widget.media!), fit: BoxFit.cover,)
+                : const Text(""),
+            ),
+          ) : const SizedBox.shrink(),
           PostButtons(context),
         ],
       ),
@@ -91,7 +118,7 @@ class Post extends StatelessWidget {
         Container(
           margin: const EdgeInsets.only(right: 5.0),
           child: Text(
-            this.username,
+            this.widget.username,
             style: const TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.bold,
@@ -99,7 +126,7 @@ class Post extends StatelessWidget {
           ),
         ),
         Text(
-          '@$name · $timeAgo',
+          '@${widget.name} · ${widget.timeAgo}',
           style: const TextStyle(
             color: Color(0xFF808083),
           ),
@@ -119,7 +146,7 @@ class Post extends StatelessWidget {
 
   Widget PostText() {
     return Text(
-      text,
+      widget.text,
       overflow: TextOverflow.clip,
     );
   }
@@ -137,16 +164,16 @@ class Post extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => const ViewPost())
               );
             },
-            child: PostIconButton(FontAwesomeIcons.comment, comments)
+            child: PostIconButton(FontAwesomeIcons.comment, widget.comments)
           ),
           GestureDetector(
             child: PostIconButton(
-              FontAwesomeIcons.retweet, 
-              reposts
+              FontAwesomeIcons.retweet,
+              widget.reposts
             ),
             onTap: () => _onRepostPressed(context),
           ),
-          PostIconButton(FontAwesomeIcons.heart, favorites),
+          PostIconButton(FontAwesomeIcons.heart, widget.favorites),
           PostIconButton(FontAwesomeIcons.share, ''),
         ],
       ),
@@ -200,13 +227,13 @@ class Post extends StatelessWidget {
     return Column(
       children: [
         ListTile(
-          leading: Icon(FontAwesomeIcons.retweet),
-          title: Text("Repost"),
-          onTap: (){},
+          leading: const Icon(FontAwesomeIcons.retweet),
+          title: const Text("Repost"),
+          onTap: (){
+            _db.rePost(postID: widget.postID);
+          },
         ),
       ],
     );
   }
-
-
 }
