@@ -1,3 +1,5 @@
+import 'package:ashesicom/common_widgets/rippleButton.dart';
+import 'package:ashesicom/views/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -13,9 +15,11 @@ class Post extends StatelessWidget {
   final String reposts;
   final String favorites;
   final String? media;
+  final String authID;
 
   const Post(
       {Key? key,
+        required this.authID,
         required this.avatar,
         required this.username,
         required this.name,
@@ -34,18 +38,28 @@ class Post extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          PostAvatar(),
+          PostAvatar(context),
           PostBody(context),
         ],
       ),
     );
   }
 
-  Widget PostAvatar() {
-    return Container(
-      margin: const EdgeInsets.all(10.0),
-      child: CircleAvatar(
-        backgroundImage: NetworkImage(avatar),
+  Widget PostAvatar(context) {
+    return RippleButton(
+      onPressed: () {
+        print(username);
+        Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Profile(authID: authID, uid: username,))
+        );
+      },
+      borderRadius: BorderRadius.circular(28),
+      child: Container(
+        margin: const EdgeInsets.all(10.0),
+        child: CircleAvatar(
+          backgroundImage: NetworkImage(avatar),
+        ),
       ),
     );
   }
@@ -90,7 +104,7 @@ class Post extends StatelessWidget {
             color: Color(0xFF808083),
           ),
         ),
-        const Spacer(),
+        // const Spacer(),
         // IconButton(
         //   icon: Icon(
         //     FontAwesomeIcons.angleDown,

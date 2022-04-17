@@ -1,21 +1,21 @@
-
-
 import 'package:ashesicom/common_widgets/message.dart';
 
 import '../common_widgets/post.dart';
 
 var posts = [
   const Post(
+    authID: "",
     avatar: 'https://pbs.twimg.com/profile_images/1187814172307800064/MhnwJbxw_400x400.jpg',
-    username: 'Flutter',
+    username: 'dreday',
     name: 'FlutterDev',
     timeAgo: '5m',
-    text: 'Google’s UI toolkit to build apps for mobile, web, & desktop from a single codebase.',
+    text: 'Google UI toolkit to build apps for mobile, web, & desktop from a single codebase.',
     comments: '243',
     reposts: '23K',
     favorites: '112K',
   ),
   const Post(
+    authID: "",
     avatar: 'https://pbs.twimg.com/profile_images/1033695141901623301/W-VnxCiG_400x400.jpg',
     username: 'Flutter en Español',
     name: 'EsFlutter',
@@ -26,6 +26,7 @@ var posts = [
     favorites: '17K',
   ),
   const Post(
+    authID: "",
     avatar: 'https://pbs.twimg.com/profile_images/1168932726461935621/VRtfrDXq_400x400.png',
     username: 'Android Dev',
     name: 'AndroidDev',
@@ -36,6 +37,7 @@ var posts = [
     favorites: '1M',
   ),
   const Post(
+    authID: "",
     avatar: 'https://pbs.twimg.com/profile_images/808350098178670592/bYyZI8Bp_400x400.jpg',
     username: 'Google Play',
     name: 'GooglePlay',
@@ -47,6 +49,7 @@ var posts = [
     favorites: '2M',
   ),
   const Post(
+    authID: "",
     avatar: 'https://pbs.twimg.com/profile_images/1253792323051204608/QiaT93TQ_400x400.jpg',
     username: 'Google',
     name: 'Google',
@@ -57,8 +60,9 @@ var posts = [
     favorites: '22M',
   ),
   const Post(
+    authID: "",
     avatar: 'https://pbs.twimg.com/profile_images/1187814172307800064/MhnwJbxw_400x400.jpg',
-    username: 'Flutter',
+    username: 'dreday',
     name: 'FlutterDev',
     timeAgo: '5m',
     text: 'Google’s UI toolkit to build apps for mobile, web, & desktop from a single codebase.',
@@ -67,6 +71,7 @@ var posts = [
     favorites: '112K',
   ),
   const Post(
+    authID: "",
     avatar: 'https://pbs.twimg.com/profile_images/1033695141901623301/W-VnxCiG_400x400.jpg',
     username: 'Flutter en Español',
     name: 'EsFlutter',
@@ -77,6 +82,7 @@ var posts = [
     favorites: '17K',
   ),
   const Post(
+    authID: "",
     avatar: 'https://pbs.twimg.com/profile_images/1168932726461935621/VRtfrDXq_400x400.png',
     username: 'Android Dev',
     name: 'AndroidDev',
@@ -87,6 +93,7 @@ var posts = [
     favorites: '1M',
   ),
   const Post(
+    authID: "",
     avatar: 'https://pbs.twimg.com/profile_images/808350098178670592/bYyZI8Bp_400x400.jpg',
     username: 'Google Play',
     name: 'GooglePlay',
@@ -98,6 +105,7 @@ var posts = [
     favorites: '2M',
   ),
   const Post(
+    authID: "",
     avatar: 'https://pbs.twimg.com/profile_images/1253792323051204608/QiaT93TQ_400x400.jpg',
     username: 'Google',
     name: 'Google',
@@ -110,14 +118,14 @@ var posts = [
 ];
 
 var messages = [
-  Message(id: "Andrew Duncan"),
-  Message(id: "Andrew Duncan"),
-  Message(id: "Andrew Duncan"),
-  Message(id: "Andrew Duncan"),
-  Message(id: "Andrew Duncan"),
-  Message(id: "Andrew Duncan"),
-  Message(id: "Andrew Duncan"),
-  Message(id: "Andrew Duncan"),
-  Message(id: "Andrew Duncan"),
+  Message(authID: "", id: "Andrew Duncan"),
+  Message(authID: "", id: "Andrew Duncan"),
+  Message(authID: "", id: "Andrew Duncan"),
+  Message(authID: "", id: "Andrew Duncan"),
+  Message(authID: "", id: "Andrew Duncan"),
+  Message(authID: "", id: "Andrew Duncan"),
+  Message(authID: "", id: "Andrew Duncan"),
+  Message(authID: "", id: "Andrew Duncan"),
+  Message(authID: "", id: "Andrew Duncan"),
 
 ];

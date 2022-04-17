@@ -1,4 +1,4 @@
-import 'package:ashesicom/services/rt_database.dart';
+import 'package:ashesicom/services/database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class Auth {
@@ -37,12 +37,12 @@ class Auth {
     );
 
     try {
-      RTDatabase().userSignUp(
-          userID: userCredential.user?.uid,
-          fullName: name,
-          contact: contact,
-          email: userCredential.user?.email,
-          gender: gender
+      Database(authID: '').userSignUp(
+          uid: userCredential.user?.uid,
+          displayName: name,
+          bio: contact,
+          avi: userCredential.user?.email,
+          banner: gender
       );
     } catch (e) {
       return null;

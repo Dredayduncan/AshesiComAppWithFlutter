@@ -28,7 +28,10 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        return macos;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for macos - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       default:
         throw UnsupportedError(
           'DefaultFirebaseOptions are not supported for this platform.',
@@ -38,7 +41,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDZL6twLZNevaUb_ANJ44Y5f6x6gvs3V7I',
-    appId: '1:867792316898:android:f20cac25f0096d58a771bb',
+    appId: '1:867792316898:android:be79320d9260686ea771bb',
     messagingSenderId: '867792316898',
     projectId: 'ashesicom',
     storageBucket: 'ashesicom.appspot.com',
@@ -46,21 +49,11 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyADbZ30Zm8BGtv-BhS1bxzK56jW6POkmz8',
-    appId: '1:867792316898:ios:09e3ff2491ad272ea771bb',
+    appId: '1:867792316898:ios:1d420feee58ce669a771bb',
     messagingSenderId: '867792316898',
     projectId: 'ashesicom',
     storageBucket: 'ashesicom.appspot.com',
-    iosClientId: '867792316898-djllosembl2jhre5ln4kpm3ijlomtrjl.apps.googleusercontent.com',
-    iosBundleId: 'com.example.ashesicom',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyADbZ30Zm8BGtv-BhS1bxzK56jW6POkmz8',
-    appId: '1:867792316898:ios:09e3ff2491ad272ea771bb',
-    messagingSenderId: '867792316898',
-    projectId: 'ashesicom',
-    storageBucket: 'ashesicom.appspot.com',
-    iosClientId: '867792316898-djllosembl2jhre5ln4kpm3ijlomtrjl.apps.googleusercontent.com',
-    iosBundleId: 'com.example.ashesicom',
+    iosClientId: '867792316898-pjdpl7p2aitc3rdie51aoubdc75tuj4o.apps.googleusercontent.com',
+    iosBundleId: 'com.example.ashesiCom',
   );
 }

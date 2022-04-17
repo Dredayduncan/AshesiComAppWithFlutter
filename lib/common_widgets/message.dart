@@ -10,7 +10,8 @@ import 'customText.dart';
 class Message extends StatelessWidget {
   final String id;
   String? lastMessage;
-  Message({Key? key, required this.id}) : super(key: key);
+  final String authID;
+  Message({Key? key, required this.id, required this.authID}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +35,9 @@ class Message extends StatelessWidget {
         leading: RippleButton(
           onPressed: () {
             Navigator.push(
-                context, MaterialPageRoute(builder: (context) => const Profile(id: "",)));
+                context, MaterialPageRoute(
+                builder: (context) => Profile(authID: authID, uid: "dreday",))
+            );
           },
           borderRadius: BorderRadius.circular(28),
           child: Container(

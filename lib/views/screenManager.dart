@@ -33,7 +33,7 @@ class _ScreenManagerState extends State<ScreenManager> {
   }
 
   Widget _getProfile(){
-    return Profile(id: "");
+    return const Profile(uid: "dreday", authID: "n",);
   }
 
   Widget _getPage(int index){
@@ -69,7 +69,7 @@ class _ScreenManagerState extends State<ScreenManager> {
               color: Colors.black
           ),
         );
-        return Profile(id: widget.auth.currentUser!.uid,); // return the messages page as a widget
+        return Profile(authID: widget.auth.currentUser!.uid,uid: widget.auth.currentUser!.uid,); // return the profile page as a widget
     }
 
     _title = const Text("Page Not Found");
