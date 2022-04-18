@@ -3,8 +3,6 @@ import 'package:ashesicom/views/welcomeScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../services/auth.dart';
-import '../services/database.dart';
-import 'login.dart';
 
 class LandingPage extends StatefulWidget {
 
@@ -17,13 +15,10 @@ class LandingPage extends StatefulWidget {
 class _LandingPageState extends State<LandingPage> {
   final Auth auth = Auth();
 
-  late Database db;
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    db = Database(authID: "auth.currentUser!.uid");
   }
 
   @override

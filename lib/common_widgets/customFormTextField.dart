@@ -5,9 +5,11 @@ class CustomTextField extends StatelessWidget {
   final String hintText;
   final TextEditingController controller;
   final bool isPassword;
+  final String? Function(String?)? validator;
 
   const CustomTextField({
     Key? key,
+    this.validator,
     required this.labeledText,
     required this.controller,
     required this.hintText,
@@ -21,7 +23,8 @@ class CustomTextField extends StatelessWidget {
       child: Center(
           child: SizedBox(
             // width: textFieldWidth,
-            child: TextField(
+            child: TextFormField(
+              validator: validator,
               obscureText: isPassword,
               controller: controller,
               decoration: InputDecoration(

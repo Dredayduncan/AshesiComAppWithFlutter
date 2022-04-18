@@ -20,8 +20,10 @@ class Post extends StatefulWidget {
   final String? media;
   final String authID;
   final String postID;
+  bool hasRePosted;
+  bool hasLiked;
 
-  const Post(
+  Post(
       {Key? key,
         required this.postID,
         required this.authID,
@@ -33,7 +35,10 @@ class Post extends StatefulWidget {
         this.media,
         required this.comments,
         required this.reposts,
-        required this.favorites})
+        required this.favorites,
+        this.hasLiked = false,
+        this.hasRePosted = false
+      })
       : super(key: key);
 
   @override
@@ -47,7 +52,7 @@ class _PostState extends State<Post> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _db = Database(authID: widget.authID);
+    _db = Database(authID: "dreday");
   }
   @override
   Widget build(BuildContext context) {
@@ -66,7 +71,6 @@ class _PostState extends State<Post> {
   Widget PostAvatar(context) {
     return RippleButton(
       onPressed: () {
-        print(widget.username);
         Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => Profile(authID: widget.authID, uid: widget.username,))
@@ -97,13 +101,11 @@ class _PostState extends State<Post> {
             },
             child: PostText()
           ),
-          widget.media != null ? Padding(
+          widget.media != null && widget.media != "" ? Padding(
             padding: const EdgeInsets.all(8.0),
             child: Container(
               alignment: Alignment.center,
-              child: widget.media != ""
-                ? Image.file(File(widget.media!), fit: BoxFit.cover,)
-                : const Text(""),
+              child: Image.file(File(widget.media!), fit: BoxFit.cover,)
             ),
           ) : const SizedBox.shrink(),
           PostButtons(context),
@@ -118,7 +120,7 @@ class _PostState extends State<Post> {
         Container(
           margin: const EdgeInsets.only(right: 5.0),
           child: Text(
-            this.widget.username,
+            this.widget.name,
             style: const TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.bold,
@@ -126,7 +128,7 @@ class _PostState extends State<Post> {
           ),
         ),
         Text(
-          '@${widget.name} · ${widget.timeAgo}',
+          '@${widget.username} · ${widget.timeAgo}',
           style: const TextStyle(
             color: Color(0xFF808083),
           ),
@@ -173,7 +175,13 @@ class _PostState extends State<Post> {
             ),
             onTap: () => _onRepostPressed(context),
           ),
-          PostIconButton(FontAwesomeIcons.heart, widget.favorites),
+          GestureDetector(
+            child: PostIconButton(
+              FontAwesomeIcons.heart,
+              widget.favorites
+            ),
+            onTap: () => _db.like(postID: widget.postID),
+          ),
           PostIconButton(FontAwesomeIcons.share, ''),
         ],
       ),
@@ -187,7 +195,6 @@ class _PostState extends State<Post> {
           text == "" ? null : icon,
           size: 16.0,
           color: Colors.black45,
-          // onPressed: (){},
         ),
         Container(
           margin: const EdgeInsets.all(6.0),

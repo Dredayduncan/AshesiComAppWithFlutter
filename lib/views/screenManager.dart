@@ -11,7 +11,6 @@ import 'messages.dart';
 class ScreenManager extends StatefulWidget {
   final Auth auth;
 
-
   const ScreenManager({Key? key, required this.auth}) : super(key: key);
 
   @override

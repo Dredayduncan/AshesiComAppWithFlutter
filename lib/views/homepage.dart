@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    db = Database(authID: "widget.auth.currentUser!.uid");
+    db = Database(authID: "dreday");
     generatePosts();
 
   }

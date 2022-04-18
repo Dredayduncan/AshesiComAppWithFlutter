@@ -14,7 +14,7 @@ class Database {
 
   // Get the user's timeline
   Future<List> getFeed() async {
-    return [];
+    return getUserPosts(uid: authID);
   }
 
   // Get a list of people the user is following
@@ -82,13 +82,25 @@ class Database {
 
     return follows.add({
       "postID": FirebaseFirestore.instance.collection('Posts').doc(postID),
-      "rePoster": FirebaseFirestore.instance.collection('Users').doc(authID),
+      "rePoster": FirebaseFirestore.instance.collection('Users').doc("dreday"),
     })
         .then((value) => true)
         .catchError((error) => false);
   }
+
   // Like a given post
-  
+  Future<bool> like({postID}) {
+    //Get the data
+    CollectionReference likes = FirebaseFirestore.instance.collection("Likes");
+
+    return likes.add({
+      "postID": FirebaseFirestore.instance.collection('Posts').doc(postID),
+      "liker": FirebaseFirestore.instance.collection('Users').doc("dreday"),
+    })
+        .then((value) => true)
+        .catchError((error) => false);
+  }
+
   // Comment on a given post
 
   // Check if user is following another user
@@ -234,14 +246,14 @@ class Database {
       if (post["poster"].id == uid) {
 
         // Get the number of comments, likes and reposts on the post
-        int comments = await getNumberOfComments(postID :post["postID"]);
-        int likes = await getNumberOfLikes(postID :post["postID"]);
-        int reposts = await getNumberOfRePosts(postID :post["postID"]);
+        int comments = await getNumberOfComments(postID :post["postID"].toString());
+        int likes = await getNumberOfLikes(postID :post["postID"].toString());
+        int reposts = await getNumberOfRePosts(postID :post["postID"].toString());
 
         // Add to posts if found
         allPosts.add(
           Post(
-            postID: post["postID"],
+            postID: post["postID"].toString(),
             authID: authID,
             avatar: 'https://pbs.twimg.com/profile_images/1187814172307800064/MhnwJbxw_400x400.jpg',
             username: uid,
@@ -281,20 +293,21 @@ class Database {
       if (post["poster"].id == uid && post['image'] != "") {
 
         // Get the number of comments, likes and reposts on the post
-        int comments = await getNumberOfComments(postID :post["postID"]);
-        int likes = await getNumberOfLikes(postID :post["postID"]);
-        int reposts = await getNumberOfRePosts(postID :post["postID"]);
+        int comments = await getNumberOfComments(postID :post["postID"].toString());
+        int likes = await getNumberOfLikes(postID :post["postID"].toString());
+        int reposts = await getNumberOfRePosts(postID :post["postID"].toString());
 
         // Increment total if found
         allPostsWithMedia.add(
             Post(
-              postID: post["postID"],
+              postID: post["postID"].toString(),
               authID: authID,
               avatar: 'https://pbs.twimg.com/profile_images/1187814172307800064/MhnwJbxw_400x400.jpg',
               username: uid,
               name: userInfo!['displayName'],
               timeAgo:  timeago.format(post['timePosted'].toDate(), locale: 'en_short'),
               text: post['text'],
+              media: post['image'],
               comments: comments.toString(),
               reposts: reposts.toString(),
               favorites: likes.toString(),
@@ -337,27 +350,28 @@ class Database {
       if (post["rePoster"].id == uid) {
 
         // Get the post details
-        Map<String, dynamic>? item = await getOnePost(postID: post["postID"]);
+        Map<String, dynamic>? item = await getOnePost(postID: post["postID"].id);
 
         //Get poster details
-        Map<String, dynamic>? posterInfo = await getUserInfo(uid: item!['username']);
+        Map<String, dynamic>? posterInfo = await getUserInfo(uid: item!['poster'].id);
 
         // Get the number of comments, likes and reposts on the post
-        int comments = await getNumberOfComments(postID :post["postID"]);
-        int likes = await getNumberOfLikes(postID :post["postID"]);
-        int reposts = await getNumberOfRePosts(postID :post["postID"]);
+        int comments = await getNumberOfComments(postID :post["postID"].id);
+        int likes = await getNumberOfLikes(postID :post["postID"].id);
+        int reposts = await getNumberOfRePosts(postID :post["postID"].id);
 
 
         // Increment total if found
         allReposts.add(
             Post(
-              postID: post["postID"],
+              postID: post["postID"].toString(),
               authID: authID,
               avatar: 'https://pbs.twimg.com/profile_images/1187814172307800064/MhnwJbxw_400x400.jpg',
-              username: item['username'],
-              name: posterInfo!['displayName'],
+              username: posterInfo!['username'],
+              name: posterInfo['displayName'],
               timeAgo:  timeago.format(item['timePosted'].toDate(), locale: 'en_short'),
               text: item['text'],
+              media: item['image'],
               comments: comments.toString(),
               reposts: reposts.toString(),
               favorites: likes.toString(),
@@ -386,27 +400,28 @@ class Database {
       if (post["liker"].id == uid) {
 
         // Get the post details
-        Map<String, dynamic>? item = await getOnePost(postID: post["postID"]);
+        Map<String, dynamic>? item = await getOnePost(postID: post["postID"].id);
 
         //Get poster details
-        Map<String, dynamic>? posterInfo = await getUserInfo(uid: item!['username']);
+        Map<String, dynamic>? posterInfo = await getUserInfo(uid: item!['poster'].id);
 
         // Get the number of comments, likes and reposts on the post
-        int comments = await getNumberOfComments(postID :post["postID"]);
-        int likes = await getNumberOfLikes(postID :post["postID"]);
-        int reposts = await getNumberOfRePosts(postID :post["postID"]);
+        int comments = await getNumberOfComments(postID :post["postID"].id);
+        int likes = await getNumberOfLikes(postID :post["postID"].id);
+        int reposts = await getNumberOfRePosts(postID :post["postID"].id);
 
 
         // Increment total if found
         allLikes.add(
             Post(
-              postID: post["postID"],
+              postID: post["postID"].toString(),
               authID: authID,
               avatar: 'https://pbs.twimg.com/profile_images/1187814172307800064/MhnwJbxw_400x400.jpg',
-              username: item['username'],
-              name: posterInfo!['displayName'],
+              username: posterInfo!['username'],
+              name: posterInfo['displayName'],
               timeAgo:  timeago.format(item['timePosted'].toDate(), locale: 'en_short'),
               text: item['text'],
+              media: item['image'],
               comments: comments.toString(),
               reposts: reposts.toString(),
               favorites: likes.toString(),
@@ -436,27 +451,28 @@ class Database {
       if (post["mainPostID"].id == postID) {
 
         // Get the post details
-        Map<String, dynamic>? item = await getOnePost(postID: post["commentPostID"]);
+        Map<String, dynamic>? item = await getOnePost(postID: post["commentPostID"].id);
 
         //Get poster details
-        Map<String, dynamic>? posterInfo = await getUserInfo(uid: item!['username']);
+        Map<String, dynamic>? posterInfo = await getUserInfo(uid: item!['poster'].id);
 
         // Get the number of comments, likes and reposts on the post
-        int comments = await getNumberOfComments(postID :post["commentPostID"]);
-        int likes = await getNumberOfLikes(postID :post["commentPostID"]);
-        int reposts = await getNumberOfRePosts(postID :post["commentPostID"]);
+        int comments = await getNumberOfComments(postID :post["commentPostID"].id);
+        int likes = await getNumberOfLikes(postID :post["commentPostID"].id);
+        int reposts = await getNumberOfRePosts(postID :post["commentPostID"].id);
 
 
         // Increment total if found
         allComments.add(
             Post(
-              postID: post["postID"],
+              postID: post["postID"].toString(),
               authID: authID,
               avatar: 'https://pbs.twimg.com/profile_images/1187814172307800064/MhnwJbxw_400x400.jpg',
-              username: item['username'],
-              name: posterInfo!['displayName'],
+              username: posterInfo!['username'],
+              name: posterInfo['displayName'],
               timeAgo:  timeago.format(item['timePosted'].toDate(), locale: 'en_short'),
               text: item['text'],
+              media: item['image'],
               comments: comments.toString(),
               reposts: reposts.toString(),
               favorites: likes.toString(),
@@ -505,7 +521,6 @@ class Database {
     var posts = query.docs.map((data) => data.data());
 
     int numRePosts = 0;
-    print(posts);
 
     if (posts.isEmpty){
       return numRePosts;
@@ -550,18 +565,18 @@ class Database {
 
   // PROFILE UPDATE
   //Insert a new user into the database
-  Future<void> userSignUp({uid, displayName, contact, email, bio, banner, avi}) async {
-    DatabaseReference ref = FirebaseDatabase.instance.ref("Users/$uid");
+  Future<void> userSignUp({uid, username}) async {
+    CollectionReference ref = FirebaseFirestore.instance.collection("Users");
 
-    await ref.set({
-      "displayName": displayName,
-      "email": email,
-      "contact": contact,
-      "height": "",
-      "weight": "",
-      "goal": "",
-      "picture": ""
-    });
+    await ref.doc(uid).set({
+      "username": username,
+      "displayName": "",
+      "bio": "",
+      "avi": "",
+      "banner": "",
+    })
+    .then((value) => true)
+    .catchError((error) => false);
 
   }
 

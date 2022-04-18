@@ -45,7 +45,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
     likedPosts = await db.getUserLikedPosts(uid: widget.uid);
     postsWithMedia = await db.getUserPostsWithMedia(uid: widget.uid);
 
-    await db.post(poster: "dreday", text: " hahaha", image: "");
+    // await db.post(poster: "dreday", text: " hahaha", image: "");
 
     // Check if the user is following this account
     isFollowing = await db.isFollowing(currentUserID: widget.authID, otherUserID: widget.uid);
@@ -64,7 +64,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
-    db = Database(authID: widget.authID,);
+    db = Database(authID: "dreday");
     getProfileData();
   }
 

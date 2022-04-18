@@ -71,7 +71,7 @@ class _NewPostState extends State<NewPost> {
                   db.post(
                     poster: widget.authID,
                     text: _text.text,
-                    image: _image.path ?? ""
+                    image: _image != null ? _image.path : ""
                   ).then((value) {
                     if (value == true){
                       StatusAlert.show(
