@@ -1,3 +1,4 @@
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:ashesicom/common_widgets/message.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -12,7 +13,26 @@ class Database {
 
   // Get the user's timeline
   Future<List> getFeed() async {
-    return getUserPosts(uid: authID);
+    // List the user's posts and posts of the people the user follows
+    List posts = await getUserPosts(uid: authID);
+
+    //Get all the people the user is following
+    return FirebaseFirestore.instance.collection("Follow").get().then((value) async {
+      List<DocumentSnapshot> allDocs = value.docs;
+
+      // get the posts of all the users being followed
+      for (var element in allDocs) {
+        Map<String, dynamic>? data = element.data() as Map<String, dynamic>?;
+
+        if (data != null && data['following'].id == authID) {
+          List userPosts = await getUserPosts(uid: data['followed'].id);
+          posts.addAll(userPosts);
+        }
+      }
+
+      return posts;
+    });
+
   }
 
   // Get a list of people the user is following
