@@ -145,13 +145,15 @@ class _NewPostState extends State<NewPost> {
               ),
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              alignment: Alignment.center,
-              child: _image != null
-                  ? Image.file(_image!, fit: BoxFit.cover,)
-                  : const Text(""),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                alignment: Alignment.center,
+                child: _image != null
+                    ? Image.file(_image!, fit: BoxFit.cover,)
+                    : const Text(""),
+              ),
             ),
           ),
           const Spacer(),

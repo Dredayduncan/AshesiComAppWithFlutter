@@ -2,7 +2,6 @@ import 'package:ashesicom/services/database.dart';
 import 'package:ashesicom/views/newPost.dart';
 import 'package:flutter/material.dart';
 import '../services/auth.dart';
-import '../widgetGenerators/posts.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -27,6 +26,7 @@ class _HomePageState extends State<HomePage> {
 
   generatePosts() async {
     posts = await db.getFeed();
+
     setState(() {
       _currentPage = _buildContent();
     });
@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    db = Database(authID: "dreday");
+    db = Database(authID: widget.auth.currentUser!.uid);
     generatePosts();
 
   }
@@ -55,7 +55,7 @@ class _HomePageState extends State<HomePage> {
         onPressed: () {
           Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => NewPost(authID: "dreday",))
+              MaterialPageRoute(builder: (context) => NewPost(authID: widget.auth.currentUser!.uid,))
           );
         },
       ),

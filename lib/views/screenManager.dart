@@ -78,20 +78,6 @@ class _ScreenManagerState extends State<ScreenManager> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        // floatingActionButton: _clickedProfile == false ? null : Container(
-        //   height: 80,
-        //   child: FittedBox(
-        //     child: FloatingActionButton(
-        //       backgroundColor: const Color(0xFFD0BBC4),
-        //       elevation: 0,
-        //       onPressed: (){},
-        //       child: const CircleAvatar(
-        //         radius: 25,
-        //         backgroundImage: AssetImage("assets/images/profile.jpeg"),
-        //       ),
-        //     ),
-        //   ),),
-        // floatingActionButtonLocation: _clickedProfile == false ? null : FloatingActionButtonLocation.startTop,
         body: _clickedProfile == false ? _getPage(_selectedIndex) : _getProfile(),
         appBar: _clickedProfile == false ? AppBar(
           backgroundColor: const Color(0xFFD0BBC4),
@@ -126,7 +112,6 @@ class _ScreenManagerState extends State<ScreenManager> {
                             ),
                             TextButton(
                               onPressed: () {
-                                var user = widget.auth.currentUser;
                                 widget.auth.signOut();
                                 Navigator.pushReplacement(
                                     context, MaterialPageRoute(
@@ -178,37 +163,6 @@ class _ScreenManagerState extends State<ScreenManager> {
           showUnselectedLabels: false,
           onTap: _onItemTapped,
         )
-    );
-  }
-
-  AppBar _profileAppBar(){
-    return AppBar(
-      backgroundColor: Colors.transparent,
-      toolbarHeight: 100,
-      flexibleSpace: const Image(
-        image: AssetImage("assets/images/profile.jpeg"),
-        fit: BoxFit.cover,
-      ),
-      leading: Padding(
-        padding: const EdgeInsets.only(bottom: 60.0),
-        child: IconButton(
-          icon: const CircleAvatar(
-            backgroundColor: Color(0xFFAF3A42),
-            radius: 15,
-              child: Padding(
-                padding: EdgeInsets.only(left: 8.0),
-                child: Icon(
-                  Icons.arrow_back_ios,
-                  size: 18,
-                ),
-              )),
-          onPressed: () {
-            setState(() {
-              _clickedProfile = false;
-            });
-          },
-        ),
-      ),
     );
   }
 }

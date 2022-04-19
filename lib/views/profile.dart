@@ -22,11 +22,13 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
   late String bio;
   late String avi;
   late String banner;
+  late String username;
   late List posts;
   late List rePosts;
   late List likedPosts;
   late List postsWithMedia;
   late bool isFollowing;
+
   Widget _currentPage = const Scaffold(
     body: Center(
       child: CircularProgressIndicator(
@@ -35,6 +37,14 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
     ),
   );
 
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 4, vsync: this);
+    db = Database(authID: widget.authID);
+    getProfileData();
+  }
 
   Future<void> getProfileData() async {
     following = await db.getUserFollowingNumber(uid: widget.uid);
@@ -45,8 +55,6 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
     likedPosts = await db.getUserLikedPosts(uid: widget.uid);
     postsWithMedia = await db.getUserPostsWithMedia(uid: widget.uid);
 
-    // await db.post(poster: "dreday", text: " hahaha", image: "");
-
     // Check if the user is following this account
     isFollowing = await db.isFollowing(currentUserID: widget.authID, otherUserID: widget.uid);
 
@@ -56,16 +64,9 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
       bio = userInfo['bio'];
       avi = userInfo['avi'];
       banner = userInfo['banner'];
+      username = userInfo['username'];
       _currentPage = _buildContent();
     });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 4, vsync: this);
-    db = Database(authID: "dreday");
-    getProfileData();
   }
 
   @override
@@ -85,7 +86,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
             fit: BoxFit.cover,
           ),
           automaticallyImplyLeading: false,
-          leading: widget.authID == null
+          leading: widget.authID != widget.uid
             ? Padding(
             padding: const EdgeInsets.only(bottom: 60.0),
             child: IconButton(
@@ -146,7 +147,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                             ),
                           ),
                           Text(
-                            "@${widget.uid}",
+                            "@$username",
                             style: const TextStyle(
                                 color: Color(0xFF808083),
                                 fontSize: 16
@@ -161,7 +162,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                     alignment: Alignment.topRight,
                     child: Padding(
                       padding: const EdgeInsets.only(right: 8.0),
-                      child: ElevatedButton(
+                      child: widget.authID == widget.uid ? ElevatedButton(
                         child: const Text(
                           "Edit Button",
                           style: TextStyle(
@@ -186,7 +187,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                               )
                           ),
                         ),
-                      ),
+                      ) : followButton(),
                     ),
                   ),
                 ],
@@ -382,12 +383,12 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
     return Container(
       child: ListView.separated(
         itemBuilder: (BuildContext context, int index) {
-          return rePosts[index];
+          return likedPosts[index];
         },
         separatorBuilder: (BuildContext context, int index) => const Divider(
           height: 0,
         ),
-        itemCount: rePosts.length,
+        itemCount: likedPosts.length,
       ),
     );
   }
@@ -405,5 +406,64 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
         itemCount: postsWithMedia.length,
       ),
     );
+  }
+
+  Widget followButton() {
+    if (isFollowing == true){
+      return ElevatedButton(
+        child: const Text(
+          "Following",
+          style: TextStyle(
+              color: Color(0xFFAF3A42)
+          ),
+        ),
+        onPressed: () {
+          // Navigator.push(
+          //     context,
+          //     MaterialPageRoute(builder: (context) => const EditProfile())
+          // );
+        },
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all(
+              const Color(0xFFD0BBC4)
+          ),
+          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+              RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18.0),
+                  side: const BorderSide(color: Color(0xFFAF3A42)
+                  )
+              )
+          ),
+        ),
+      );
+    }
+    else {
+      return ElevatedButton(
+        child: const Text(
+          "Follow",
+          style: TextStyle(
+              color: Color(0xFFAF3A42)
+          ),
+        ),
+        onPressed: () {
+          // Navigator.push(
+          //     context,
+          //     MaterialPageRoute(builder: (context) => const EditProfile())
+          // );
+        },
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all(
+              const Color(0xFFAF3A42)
+          ),
+          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+              RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18.0),
+                  // side: const BorderSide(color: Color(0xFFAF3A42)
+                  // )
+              )
+          ),
+        ),
+      );
+    }
   }
 }

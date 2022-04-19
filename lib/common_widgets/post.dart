@@ -22,11 +22,13 @@ class Post extends StatefulWidget {
   final String postID;
   bool hasRePosted;
   bool hasLiked;
+  final String uid;
 
   Post(
       {Key? key,
         required this.postID,
         required this.authID,
+        required this.uid,
         required this.avatar,
         required this.username,
         required this.name,
@@ -52,7 +54,7 @@ class _PostState extends State<Post> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _db = Database(authID: "dreday");
+    _db = Database(authID: widget.authID);
   }
   @override
   Widget build(BuildContext context) {
@@ -73,7 +75,7 @@ class _PostState extends State<Post> {
       onPressed: () {
         Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => Profile(authID: widget.authID, uid: widget.username,))
+            MaterialPageRoute(builder: (context) => Profile(authID: widget.authID, uid: widget.uid,))
         );
       },
       borderRadius: BorderRadius.circular(28),
@@ -96,7 +98,7 @@ class _PostState extends State<Post> {
             onTap: () {
               Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const ViewPost())
+                  MaterialPageRoute(builder: (context) => ViewPost(authID: widget.authID, postID: widget.postID,))
               );
             },
             child: PostText()
@@ -120,7 +122,7 @@ class _PostState extends State<Post> {
         Container(
           margin: const EdgeInsets.only(right: 5.0),
           child: Text(
-            this.widget.name,
+            widget.name,
             style: const TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.bold,
@@ -154,6 +156,25 @@ class _PostState extends State<Post> {
   }
 
   Widget PostButtons(BuildContext context) {
+    //Standard like button
+    var favorite = FontAwesomeIcons.heart;
+    var favColor = Colors.black45;
+
+    // Standard repost button
+    var repost = FontAwesomeIcons.retweet;
+    var repostColor = Colors.black45;
+
+    //Check if the user has liked this post
+    if (widget.hasLiked){
+      favorite = FontAwesomeIcons.solidHeart;
+      favColor = const Color(0xFFCB6E74);
+    }
+
+    // Check if the user has reposted this post
+    if (widget.hasRePosted){
+      repostColor = const Color(0xFFCB6E74);
+    }
+
     return Container(
       margin: const EdgeInsets.only(top: 10.0, right: 20.0),
       child: Row(
@@ -163,38 +184,40 @@ class _PostState extends State<Post> {
             onTap: () {
               Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const ViewPost())
+                  MaterialPageRoute(builder: (context) => ViewPost(authID: widget.authID, postID: widget.postID,))
               );
             },
-            child: PostIconButton(FontAwesomeIcons.comment, widget.comments)
+            child: PostIconButton(FontAwesomeIcons.comment, widget.comments, Colors.black45)
           ),
           GestureDetector(
             child: PostIconButton(
-              FontAwesomeIcons.retweet,
-              widget.reposts
+              repost,
+              widget.reposts,
+              repostColor
             ),
-            onTap: () => _onRepostPressed(context),
+            onTap: () => widget.hasRePosted == true ? _db.unRePost(postID: widget.postID) : _onRepostPressed(context),
           ),
           GestureDetector(
             child: PostIconButton(
-              FontAwesomeIcons.heart,
-              widget.favorites
+              favorite,
+              widget.favorites,
+              favColor
             ),
-            onTap: () => _db.like(postID: widget.postID),
+            onTap: () => widget.hasLiked == true ? _db.unlike(postID: widget.postID) : _db.like(postID: widget.postID),
           ),
-          PostIconButton(FontAwesomeIcons.share, ''),
+          PostIconButton(FontAwesomeIcons.share, '', Colors.black45),
         ],
       ),
     );
   }
 
-  Widget PostIconButton(IconData icon, String text) {
+  Widget PostIconButton(IconData icon, String text, iconColor) {
     return Row(
       children: [
         Icon(
           text == "" ? null : icon,
           size: 16.0,
-          color: Colors.black45,
+          color: iconColor,
         ),
         Container(
           margin: const EdgeInsets.all(6.0),
@@ -238,6 +261,7 @@ class _PostState extends State<Post> {
           title: const Text("Repost"),
           onTap: (){
             _db.rePost(postID: widget.postID);
+            Navigator.pop(context);
           },
         ),
       ],

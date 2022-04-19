@@ -1,7 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
+import '../services/database.dart';
+
 class ViewPost extends StatefulWidget {
-  const ViewPost({Key? key}) : super(key: key);
+  final String postID;
+  final String authID;
+
+  const ViewPost({Key? key, required this.authID, required this.postID}) : super(key: key);
 
   @override
   State<ViewPost> createState() => _ViewPostState();
@@ -9,19 +16,52 @@ class ViewPost extends StatefulWidget {
 
 class _ViewPostState extends State<ViewPost> {
   TextEditingController _replyController = TextEditingController();
-  var _image;
+  late Database _db;
+  late Map<String, dynamic>? postInfo;
+  late Map<String, dynamic>? posterInfo;
+
+  Widget _currentPage = const Scaffold(
+    body: Center(
+      child: CircularProgressIndicator(
+        color: Color(0xFFAF3A42),
+      ),
+    ),
+  );
+
+  Future<void> getPostDetails () async {
+    postInfo = await _db.getOnePost(postID: widget.postID);
+    posterInfo = await _db.getUserInfo(uid: postInfo!['poster'].id);
+
+    setState(() {
+      _currentPage = _buildContent();
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _db = Database(authID: widget.authID);
+    getPostDetails();
+  }
+
+  // var _image;
   @override
   Widget build(BuildContext context) {
+    return _currentPage;
+  }
+
+  Widget _buildContent() {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
           "Post",
           style: TextStyle(
-            color: Colors.black
+              color: Colors.black
           ),
         ),
         iconTheme: const IconThemeData(
-          color: Color(0xFFAF3A42)
+            color: Color(0xFFAF3A42)
         ),
         centerTitle: true,
         elevation: 0,
@@ -35,9 +75,7 @@ class _ViewPostState extends State<ViewPost> {
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
@@ -48,47 +86,41 @@ class _ViewPostState extends State<ViewPost> {
                       ),
                     ),
                     Column(
-                      children: const [
-                      Text(
-                      "Dre Day",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      '@beans',
-                      style: TextStyle(
-                        color: Color(0xFF808083),
-                      ),
-                    ),
+                      children: [
+                        Text(
+                          posterInfo!['displayName'],
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '@${posterInfo!["username"]}',
+                          style: const TextStyle(
+                            color: Color(0xFF808083),
+                          ),
+                        ),
                       ],
                     )
                   ],
                 ),
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    "Quickly create a low-fi wireframe version of your web projects "
-                    "with ready-to-use layouts of Scheme Constructor this is just to "
-                    "test the scroll feature",
-                    style: TextStyle(
-                      fontSize: 20
+                    '${postInfo!["text"]}',
+                    style: const TextStyle(
+                        fontSize: 20
                     ),
                   ),
                 ),
-                SizedBox(width: 5.0,),
-                Padding(
+                const SizedBox(width: 5.0,),
+                postInfo!['image'] != null && postInfo!['image'] != "" ? Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
-                    alignment: Alignment.center,
-                    child: Image(
-                      image: AssetImage("assets/images/profile.jpeg"),
-                    )//_image != null
-                        // ? Image.file(_image!, fit: BoxFit.cover,)
-                        // : const Text(""),
+                      alignment: Alignment.center,
+                      child: Image.file(File(postInfo!['image']), fit: BoxFit.cover,)
                   ),
-                ),
+                ) : const SizedBox.shrink(),
               ],
             ),
           ),

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:ashesicom/common_widgets/message.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -78,14 +76,71 @@ class Database {
   // Retweet a given post
   Future<bool> rePost({postID}) {
     //Get the data
-    CollectionReference follows = FirebaseFirestore.instance.collection("Reposts");
+    CollectionReference reposts = FirebaseFirestore.instance.collection("Reposts");
 
-    return follows.add({
+    return reposts.add({
       "postID": FirebaseFirestore.instance.collection('Posts').doc(postID),
-      "rePoster": FirebaseFirestore.instance.collection('Users').doc("dreday"),
+      "rePoster": FirebaseFirestore.instance.collection('Users').doc(authID),
     })
         .then((value) => true)
         .catchError((error) => false);
+  }
+
+  // Remove the user's repost
+  Future<bool> unRePost({postID}) async {
+    //Get the document reference of the post
+    late String docReference;
+
+    //Get all the reposts
+    await FirebaseFirestore.instance.collection("Reposts").get().then((value) {
+      List<DocumentSnapshot> allDocs = value.docs;
+
+      // get the document reference of the repost
+      allDocs.forEach((element) {
+        Map<String, dynamic>? data = element.data() as Map<String, dynamic>?;
+
+        if (data!['rePoster'].id == authID && data["postID"].id == postID) {
+          docReference = element.reference.id;
+          return;
+        }
+      });
+
+    });
+
+    // Delete the repost
+    return FirebaseFirestore.instance.collection("Reposts").doc(docReference).delete()
+        .then((value) => true)
+        .catchError((error) => false
+    );
+
+  }
+
+  // Remove the user's like
+  Future<bool> unlike({postID}) async {
+    //Get the document reference of the post
+    late String docReference;
+
+    //Get all the reposts
+    await FirebaseFirestore.instance.collection("Likes").get().then((value) {
+      List<DocumentSnapshot> allDocs = value.docs;
+
+      // get the document reference of the repost
+      allDocs.forEach((element) {
+        Map<String, dynamic>? data = element.data() as Map<String, dynamic>?;
+
+        if (data!['liker'].id == authID && data["postID"].id == postID) {
+          docReference = element.reference.id;
+          return;
+        }
+      });
+
+    });
+
+    // Delete the repost
+    return FirebaseFirestore.instance.collection("Likes").doc(docReference).delete()
+        .then((value) => true)
+        .catchError((error) => false
+    );
   }
 
   // Like a given post
@@ -95,7 +150,7 @@ class Database {
 
     return likes.add({
       "postID": FirebaseFirestore.instance.collection('Posts').doc(postID),
-      "liker": FirebaseFirestore.instance.collection('Users').doc("dreday"),
+      "liker": FirebaseFirestore.instance.collection('Users').doc(authID),
     })
         .then((value) => true)
         .catchError((error) => false);
@@ -136,7 +191,7 @@ class Database {
         .collection("Messages")
         .get();
 
-    // Get the user's posts
+    // Get the messages
     var messages = query.docs.map((data) => data.data());
 
     final allMessages = [];
@@ -163,6 +218,46 @@ class Database {
   }
 
   // Get user's chat
+
+  // Check if the user has liked a post
+  Future<bool> hasLiked({postID}) async {
+    // Get the data from the database
+    QuerySnapshot<Map<String, dynamic>> query = await FirebaseFirestore.instance
+        .collection("Likes")
+        .get();
+
+    // Get the liked posts
+    var likedPosts = query.docs.map((data) => data.data());
+
+    for (var element in likedPosts){
+
+      if (element['liker'].id == authID && element['postID'].id == postID.toString()){
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  // Check if the user has reposted a post
+  Future<bool> hasRePost({postID}) async {
+    // Get the data from the database
+    QuerySnapshot<Map<String, dynamic>> query = await FirebaseFirestore.instance
+        .collection("Reposts")
+        .get();
+
+    // Get the liked posts
+    var reposts = query.docs.map((data) => data.data());
+
+    for (var element in reposts){
+
+      if (element['rePoster'].id == authID && element['postID'].id == postID.toString()){
+        return true;
+      }
+    }
+
+    return false;
+  }
 
   // Get user's info
   Future<Map<String, dynamic>?> getUserInfo({uid}) async {
@@ -249,21 +344,27 @@ class Database {
         int comments = await getNumberOfComments(postID :post["postID"].toString());
         int likes = await getNumberOfLikes(postID :post["postID"].toString());
         int reposts = await getNumberOfRePosts(postID :post["postID"].toString());
+        bool liked = await hasLiked(postID: post["postID"]);
+        bool rePosted = await hasRePost(postID: post["postID"]);
+
 
         // Add to posts if found
         allPosts.add(
           Post(
             postID: post["postID"].toString(),
             authID: authID,
+            uid: post["poster"].id,
             avatar: 'https://pbs.twimg.com/profile_images/1187814172307800064/MhnwJbxw_400x400.jpg',
-            username: uid,
-            name: userInfo!['displayName'],
+            username: userInfo!['username'],
+            name: userInfo['displayName'],
             timeAgo: timeago.format(post['timePosted'].toDate(), locale: 'en_short'),
             text: post['text'],
             media: post['image'],
             comments: comments.toString(),
             reposts: reposts.toString(),
             favorites: likes.toString(),
+            hasLiked: liked,
+            hasRePosted: rePosted,
           )
         );
       }
@@ -302,9 +403,10 @@ class Database {
             Post(
               postID: post["postID"].toString(),
               authID: authID,
+              uid: post["poster"].id,
               avatar: 'https://pbs.twimg.com/profile_images/1187814172307800064/MhnwJbxw_400x400.jpg',
-              username: uid,
-              name: userInfo!['displayName'],
+              username: userInfo!['username'],
+              name: userInfo['displayName'],
               timeAgo:  timeago.format(post['timePosted'].toDate(), locale: 'en_short'),
               text: post['text'],
               media: post['image'],
@@ -366,6 +468,7 @@ class Database {
             Post(
               postID: post["postID"].toString(),
               authID: authID,
+              uid: item["poster"].id,
               avatar: 'https://pbs.twimg.com/profile_images/1187814172307800064/MhnwJbxw_400x400.jpg',
               username: posterInfo!['username'],
               name: posterInfo['displayName'],
@@ -397,6 +500,7 @@ class Database {
 
     // Loop through the data to count the number of people the user is following
     for (var post in posts) {
+
       if (post["liker"].id == uid) {
 
         // Get the post details
@@ -416,6 +520,7 @@ class Database {
             Post(
               postID: post["postID"].toString(),
               authID: authID,
+              uid: item["poster"].id,
               avatar: 'https://pbs.twimg.com/profile_images/1187814172307800064/MhnwJbxw_400x400.jpg',
               username: posterInfo!['username'],
               name: posterInfo['displayName'],
@@ -467,6 +572,7 @@ class Database {
             Post(
               postID: post["postID"].toString(),
               authID: authID,
+              uid: item["poster"].id,
               avatar: 'https://pbs.twimg.com/profile_images/1187814172307800064/MhnwJbxw_400x400.jpg',
               username: posterInfo!['username'],
               name: posterInfo['displayName'],

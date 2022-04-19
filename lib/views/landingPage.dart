@@ -1,4 +1,4 @@
-import 'package:ashesicom/views/homepage.dart';
+import 'package:ashesicom/views/screenManager.dart';
 import 'package:ashesicom/views/welcomeScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +36,7 @@ class _LandingPageState extends State<LandingPage> {
           }
 
 
-          return HomePage(auth: auth);
+          return ScreenManager(auth: auth);
           }
 
           //Display a loading UI while the data is loading
