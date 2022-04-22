@@ -1,9 +1,22 @@
+import 'dart:io';
+
 import 'package:ashesicom/common_widgets/profileTextField.dart';
 import 'package:flutter/material.dart';
 
 class EditProfile extends StatefulWidget {
+  final String displayName;
+  final String bio;
+  final String avi;
+  final String banner;
 
-  const EditProfile({Key? key}) : super(key: key);
+
+  const EditProfile({
+    Key? key,
+    required this.displayName,
+    required this.bio,
+    required this.avi,
+    required this.banner,
+  }) : super(key: key);
 
   @override
   State<EditProfile> createState() => _EditProfileState();
@@ -11,14 +24,21 @@ class EditProfile extends StatefulWidget {
 
 class _EditProfileState extends State<EditProfile> {
 
-  late TextEditingController _name = TextEditingController();
-  late TextEditingController _bio = TextEditingController();
+  TextEditingController _name = TextEditingController();
+  TextEditingController _bio = TextEditingController();
+
+  // Get avi and banner images
+  late File avi;
+  late File banner;
+
 
   @override
   void initState() {
     // TODO: implement initState
-    _name.text = "Dre Day";
-    _bio.text = "Digital Goodies Team - Web & Mobile UI/UX development; Graphics; Illustrations";
+    _name.text = widget.displayName;
+    _bio.text = widget.bio;
+    avi = File(widget.avi);
+    banner = File(widget.banner);
     super.initState();
   }
 
@@ -73,8 +93,8 @@ class _EditProfileState extends State<EditProfile> {
                 Container(
                   height: 120,
                   width:  MediaQuery.of(context).size.width,
-                  child: const Image(
-                    image: AssetImage("assets/images/profile.jpeg"),
+                  child: Image.file(
+                    banner,
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -88,9 +108,12 @@ class _EditProfileState extends State<EditProfile> {
                           backgroundColor: const Color(0xFFD0BBC4),
                           elevation: 0,
                           onPressed: (){},
-                          child: const CircleAvatar(
+                          child: CircleAvatar(
                             radius: 25,
-                            backgroundImage: AssetImage("assets/images/profile.jpeg"),
+                            backgroundImage: Image.file(
+                              avi,
+                              fit: BoxFit.cover,
+                            ).image,
                           ),
                         ),
                       ),

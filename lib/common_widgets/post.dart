@@ -82,7 +82,12 @@ class _PostState extends State<Post> {
       child: Container(
         margin: const EdgeInsets.all(10.0),
         child: CircleAvatar(
-          backgroundImage: NetworkImage(widget.avatar),
+          backgroundImage: widget.avatar == ""
+              ? const AssetImage("assets/images/AshLogo.jpg")
+              :Image.file(
+            File(widget.avatar),
+            fit: BoxFit.cover,
+          ).image
         ),
       ),
     );
@@ -195,7 +200,7 @@ class _PostState extends State<Post> {
               widget.reposts,
               repostColor
             ),
-            onTap: () => widget.hasRePosted == true ? _db.unRePost(postID: widget.postID) : _onRepostPressed(context),
+            onTap: () => widget.hasRePosted == true ? onUnRePost(repostColor) : _onRepostPressed(context, repostColor),
           ),
           GestureDetector(
             child: PostIconButton(
@@ -233,13 +238,27 @@ class _PostState extends State<Post> {
     );
   }
 
-  void _onRepostPressed(BuildContext context) {
+  // Undo the repost when post has already been reposted
+  void onUnRePost(repostColor){
+
+    setState(() {
+      //Actively change the icon color
+      repostColor = Colors.black45;
+
+      // Remove the repost from the database
+      _db.unRePost(postID: widget.postID);
+    });
+
+  }
+
+  // Show pop up menu when the repost button is clicked
+  void _onRepostPressed(BuildContext context, repostColor) {
     showModalBottomSheet(context: context, builder: (context){
       return Container(
         height: 100,
         color: const Color(0xFF737373),
         child: Container(
-          child: _buildRepostModal(),
+          child: _buildRepostModal(repostColor),
           decoration: const BoxDecoration(
               color: Color(0xFFD0BBC4),
               borderRadius: BorderRadius.only(
@@ -253,13 +272,16 @@ class _PostState extends State<Post> {
     });
   }
 
-  Column _buildRepostModal(){
+  Column _buildRepostModal(repostColor){
     return Column(
       children: [
         ListTile(
           leading: const Icon(FontAwesomeIcons.retweet),
           title: const Text("Repost"),
           onTap: (){
+            setState(() {
+              repostColor = const Color(0xFFCB6E74);
+            });
             _db.rePost(postID: widget.postID);
             Navigator.pop(context);
           },

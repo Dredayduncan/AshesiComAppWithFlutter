@@ -19,6 +19,7 @@ class _ViewPostState extends State<ViewPost> {
   late Database _db;
   late Map<String, dynamic>? postInfo;
   late Map<String, dynamic>? posterInfo;
+  late Map<String, dynamic>? userInfo;
 
   Widget _currentPage = const Scaffold(
     body: Center(
@@ -31,6 +32,7 @@ class _ViewPostState extends State<ViewPost> {
   Future<void> getPostDetails () async {
     postInfo = await _db.getOnePost(postID: widget.postID);
     posterInfo = await _db.getUserInfo(uid: postInfo!['poster'].id);
+    userInfo = await _db.getUserInfo(uid: widget.authID);
 
     setState(() {
       _currentPage = _buildContent();
@@ -81,8 +83,13 @@ class _ViewPostState extends State<ViewPost> {
                   children: [
                     Container(
                       margin: const EdgeInsets.all(10.0),
-                      child: const CircleAvatar(
-                        backgroundImage: AssetImage("assets/images/profile.jpeg"),
+                      child: CircleAvatar(
+                        backgroundImage: posterInfo!['avi'] == ""
+                            ? const AssetImage("assets/images/AshLogo.jpg")
+                            :Image.file(
+                          File(posterInfo!['avi']),
+                          fit: BoxFit.cover,
+                        ).image,
                       ),
                     ),
                     Column(
@@ -131,9 +138,14 @@ class _ViewPostState extends State<ViewPost> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const CircleAvatar(
+            CircleAvatar(
               radius: 15,
-              backgroundImage: AssetImage("assets/images/profile.jpeg"),
+              backgroundImage: userInfo!['avi'] == ""
+                  ? const AssetImage("assets/images/AshLogo.jpg")
+                  :Image.file(
+                File(userInfo!['avi']),
+                fit: BoxFit.cover,
+              ).image,
             ),
             const SizedBox(width: 5.0,),
             Expanded(

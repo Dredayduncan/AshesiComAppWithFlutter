@@ -54,8 +54,8 @@ class Message extends StatelessWidget {
               border: Border.all(color: Colors.white, width: 2),
               borderRadius: BorderRadius.circular(28),
               image: const DecorationImage(
-                  image: NetworkImage(
-                    "https://images.unsplash.com/photo-1547721064-da6cfb341d50",
+                  image: AssetImage(
+                    "assets/images/profile.jpeg",
                   ),
                   fit: BoxFit.cover),
             ),

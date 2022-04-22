@@ -68,6 +68,7 @@ class _NewPostState extends State<NewPost> {
                   ),
                 ),
                 onPressed: () {
+
                   db.post(
                     poster: widget.authID,
                     text: _text.text,

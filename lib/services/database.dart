@@ -81,13 +81,13 @@ class Database {
 }
   
   // follow a given user
-  Future<bool> follow({currentUser, otherUser}) {
+  Future<bool> follow({uid}) {
     //Get the data
     CollectionReference follows = FirebaseFirestore.instance.collection("Follow");
 
     return follows.add({
-      "following": FirebaseFirestore.instance.collection('Users').doc(currentUser),
-      "followed": FirebaseFirestore.instance.collection('Users').doc(otherUser),
+      "following": FirebaseFirestore.instance.collection('Users').doc(authID),
+      "followed": FirebaseFirestore.instance.collection('Users').doc(uid),
     })
         .then((value) => true)
         .catchError((error) => false);
@@ -158,6 +158,34 @@ class Database {
 
     // Delete the repost
     return FirebaseFirestore.instance.collection("Likes").doc(docReference).delete()
+        .then((value) => true)
+        .catchError((error) => false
+    );
+  }
+
+  // Unfollow another user
+  Future<bool> unfollow({uid}) async{
+    //Get the document reference of the post
+    late String docReference;
+
+    //Get all the follows
+    await FirebaseFirestore.instance.collection("Follow").get().then((value) {
+      List<DocumentSnapshot> allDocs = value.docs;
+
+      // get the document reference of the follow
+      allDocs.forEach((element) {
+        Map<String, dynamic>? data = element.data() as Map<String, dynamic>?;
+
+        if (data!['following'].id == authID && data["followed"].id == uid) {
+          docReference = element.reference.id;
+          return;
+        }
+      });
+
+    });
+
+    // Delete the repost
+    return FirebaseFirestore.instance.collection("Follow").doc(docReference).delete()
         .then((value) => true)
         .catchError((error) => false
     );
@@ -374,8 +402,8 @@ class Database {
             postID: post["postID"].toString(),
             authID: authID,
             uid: post["poster"].id,
-            avatar: 'https://pbs.twimg.com/profile_images/1187814172307800064/MhnwJbxw_400x400.jpg',
-            username: userInfo!['username'],
+            avatar: userInfo!['avi'],
+            username: userInfo['username'],
             name: userInfo['displayName'],
             timeAgo: timeago.format(post['timePosted'].toDate(), locale: 'en_short'),
             text: post['text'],
@@ -424,8 +452,8 @@ class Database {
               postID: post["postID"].toString(),
               authID: authID,
               uid: post["poster"].id,
-              avatar: 'https://pbs.twimg.com/profile_images/1187814172307800064/MhnwJbxw_400x400.jpg',
-              username: userInfo!['username'],
+              avatar: userInfo!['avi'],
+              username: userInfo['username'],
               name: userInfo['displayName'],
               timeAgo:  timeago.format(post['timePosted'].toDate(), locale: 'en_short'),
               text: post['text'],
@@ -489,8 +517,8 @@ class Database {
               postID: post["postID"].toString(),
               authID: authID,
               uid: item["poster"].id,
-              avatar: 'https://pbs.twimg.com/profile_images/1187814172307800064/MhnwJbxw_400x400.jpg',
-              username: posterInfo!['username'],
+              avatar: posterInfo!['avi'],
+              username: posterInfo['username'],
               name: posterInfo['displayName'],
               timeAgo:  timeago.format(item['timePosted'].toDate(), locale: 'en_short'),
               text: item['text'],
@@ -541,8 +569,8 @@ class Database {
               postID: post["postID"].toString(),
               authID: authID,
               uid: item["poster"].id,
-              avatar: 'https://pbs.twimg.com/profile_images/1187814172307800064/MhnwJbxw_400x400.jpg',
-              username: posterInfo!['username'],
+              avatar: posterInfo!['avi'],
+              username: posterInfo['username'],
               name: posterInfo['displayName'],
               timeAgo:  timeago.format(item['timePosted'].toDate(), locale: 'en_short'),
               text: item['text'],
@@ -593,8 +621,8 @@ class Database {
               postID: post["postID"].toString(),
               authID: authID,
               uid: item["poster"].id,
-              avatar: 'https://pbs.twimg.com/profile_images/1187814172307800064/MhnwJbxw_400x400.jpg',
-              username: posterInfo!['username'],
+              avatar: posterInfo!['avi'],
+              username: posterInfo['username'],
               name: posterInfo['displayName'],
               timeAgo:  timeago.format(item['timePosted'].toDate(), locale: 'en_short'),
               text: item['text'],
@@ -708,9 +736,9 @@ class Database {
 
   // Update a user's information when they save their profile
   Future<void> userProfileUpdate({uid, displayName, bio, avi, banner}) async {
-    DatabaseReference ref = FirebaseDatabase.instance.ref("Users/$uid");
+    CollectionReference ref = FirebaseFirestore.instance.collection("Users");
 
-    await ref.update({
+    await ref.doc(uid).update({
       "displayName": displayName,
       "bio": bio,
       "avi": avi,

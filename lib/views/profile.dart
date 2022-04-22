@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:ashesicom/services/database.dart';
 import 'package:ashesicom/views/editProfile.dart';
 import 'package:flutter/material.dart';
@@ -81,9 +83,13 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           toolbarHeight: 100,
-          flexibleSpace: const Image(
-            image: AssetImage("assets/images/profile.jpeg"),
-            fit: BoxFit.cover,
+          flexibleSpace: Image(
+            image: banner == ""
+            ? const AssetImage("assets/images/ashHead.jpeg")
+            : Image.file(
+              File(banner),
+              fit: BoxFit.cover,
+            ).image,
           ),
           automaticallyImplyLeading: false,
           leading: widget.authID != widget.uid
@@ -116,9 +122,14 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
               backgroundColor: const Color(0xFFD0BBC4),
               elevation: 0,
               onPressed: (){},
-              child: const CircleAvatar(
+              child: CircleAvatar(
                 radius: 25,
-                backgroundImage: AssetImage("assets/images/profile.jpeg"),
+                backgroundImage: avi == ""
+                  ? const AssetImage("assets/images/AshLogo.jpg")
+                  :Image.file(
+                    File(avi),
+                    fit: BoxFit.cover,
+                  ).image,
               ),
             ),
           ),
@@ -164,7 +175,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                       padding: const EdgeInsets.only(right: 8.0),
                       child: widget.authID == widget.uid ? ElevatedButton(
                         child: const Text(
-                          "Edit Button",
+                          "Edit Profile",
                           style: TextStyle(
                               color: Color(0xFFAF3A42)
                           ),
@@ -172,7 +183,12 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                         onPressed: () {
                           Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const EditProfile())
+                              MaterialPageRoute(builder: (context) => EditProfile(
+                                displayName: displayName,
+                                bio: bio,
+                                avi: avi,
+                                banner: banner,
+                              ))
                           );
                         },
                         style: ButtonStyle(
@@ -418,10 +434,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
           ),
         ),
         onPressed: () {
-          // Navigator.push(
-          //     context,
-          //     MaterialPageRoute(builder: (context) => const EditProfile())
-          // );
+          db.unfollow(uid: widget.uid);
         },
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all(
@@ -446,10 +459,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
           ),
         ),
         onPressed: () {
-          // Navigator.push(
-          //     context,
-          //     MaterialPageRoute(builder: (context) => const EditProfile())
-          // );
+          db.follow(uid: widget.uid);
         },
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all(
