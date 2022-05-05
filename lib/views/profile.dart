@@ -184,6 +184,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                           Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => EditProfile(
+                                authID: widget.authID,
                                 displayName: displayName,
                                 bio: bio,
                                 avi: avi,
@@ -293,7 +294,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                             "Post",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16
+                                fontSize: 12
                             ),
                           ),
 
@@ -303,7 +304,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                             "Reposts",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16
+                                fontSize: 12
                             ),
                           ),
                         ),
@@ -312,7 +313,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                             "Media",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16
+                                fontSize: 12
                             ),
                           ),
                         ),
@@ -321,7 +322,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                             "Likes",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16
+                                fontSize: 12
                             ),
                           ),
                         )

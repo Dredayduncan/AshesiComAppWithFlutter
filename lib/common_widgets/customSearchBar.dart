@@ -1,13 +1,19 @@
+import 'package:ashesicom/views/newPost.dart';
+import 'package:ashesicom/views/screenManager.dart';
 import 'package:flutter/material.dart';
 
 class CustomSearchBar extends StatefulWidget {
   final String hint;
   final TextEditingController controller;
+  final VoidCallback? onSearch;
+  final String authID;
 
   const CustomSearchBar({
     Key? key,
+    required this.authID,
     required this.controller,
-    required this.hint
+    required this.hint,
+    required this.onSearch
   }) : super(key: key);
 
   @override
@@ -20,9 +26,8 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
     return Container(
       height: 30,
       child: TextField(
-        onChanged: (value) {
-          setState(() {});
-        },
+        textInputAction: TextInputAction.search,
+        onSubmitted: (value) => widget.onSearch,
         controller: widget.controller,
         decoration: InputDecoration(
             enabledBorder: OutlineInputBorder(

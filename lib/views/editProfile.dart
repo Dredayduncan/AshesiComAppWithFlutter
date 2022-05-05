@@ -1,13 +1,18 @@
 import 'dart:io';
-
+import 'package:ashesicom/common_widgets/customSubmitButton.dart';
 import 'package:ashesicom/common_widgets/profileTextField.dart';
+import 'package:ashesicom/services/database.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../common_widgets/imageBottomSheet.dart';
 
 class EditProfile extends StatefulWidget {
   final String displayName;
   final String bio;
   final String avi;
   final String banner;
+  final String authID;
 
 
   const EditProfile({
@@ -16,6 +21,7 @@ class EditProfile extends StatefulWidget {
     required this.bio,
     required this.avi,
     required this.banner,
+    required this.authID
   }) : super(key: key);
 
   @override
@@ -26,10 +32,12 @@ class _EditProfileState extends State<EditProfile> {
 
   TextEditingController _name = TextEditingController();
   TextEditingController _bio = TextEditingController();
+  TextEditingController _contact = TextEditingController();
+  late Database _db;
 
   // Get avi and banner images
-  late File avi;
-  late File banner;
+  late File _avi;
+  late File _banner;
 
 
   @override
@@ -37,8 +45,9 @@ class _EditProfileState extends State<EditProfile> {
     // TODO: implement initState
     _name.text = widget.displayName;
     _bio.text = widget.bio;
-    avi = File(widget.avi);
-    banner = File(widget.banner);
+    _avi = File(widget.avi);
+    _banner = File(widget.banner);
+    _db =  Database(authID: widget.authID);
     super.initState();
   }
 
@@ -73,7 +82,45 @@ class _EditProfileState extends State<EditProfile> {
               )
             ),
             TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  // Update profile information
+                  _db.userProfileUpdate(
+                    uid: widget.authID,
+                    displayName: _name.text,
+                    bio: _bio.text,
+                    avi: _avi.path,
+                    banner: _banner.path
+                  ).then((value) {
+                      if (value == true){
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('Profile has been updated!'),
+                            action: SnackBarAction(
+                              label: 'Dismiss',
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                              },
+                            ),
+                          ),
+                        );
+
+                        Navigator.of(context).pop();
+                      }
+                      else {
+                       return ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('Profile could not be updated!'),
+                            action: SnackBarAction(
+                              label: 'Dismiss',
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                              },
+                            ),
+                          ),
+                        );
+                      }
+                  });
+                },
                 child: const Text(
                   "Save",
                   style: TextStyle(
@@ -85,53 +132,219 @@ class _EditProfileState extends State<EditProfile> {
           ],
         ),
       ),
-      body: Column(
-          children: [
-            //  Banner
-            Stack(
-              children: [
-                Container(
-                  height: 120,
-                  width:  MediaQuery.of(context).size.width,
-                  child: Image.file(
-                    banner,
-                    fit: BoxFit.cover,
-                  ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: 180,
+                child: Stack(
+                  children: [
+                    _bannerImage(),
+
+                    //avi
+                    Align(
+                      alignment: Alignment.bottomLeft,
+                      child: _aviImage(),
+                    )
+                  ],
                 ),
-                Positioned(
-                  top: 80.0,
-                  child: Container(
-                    height: 80,
-                    child: Container(
-                      child: FittedBox(
-                        child: FloatingActionButton(
-                          backgroundColor: const Color(0xFFD0BBC4),
-                          elevation: 0,
-                          onPressed: (){},
-                          child: CircleAvatar(
-                            radius: 25,
-                            backgroundImage: Image.file(
-                              avi,
-                              fit: BoxFit.cover,
-                            ).image,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ]
-            ),
-            CustomProfileTextField(
-              label: "Name",
-              controller: _name
-            ),
-            CustomProfileTextField(
-                label: "Bio",
-                controller: _bio
-            )
-          ],
-        ),
+              ),
+              //  Banner
+              CustomProfileTextField(
+                label: "Name",
+                controller: _name
+              ),
+              CustomProfileTextField(
+                  label: "Contact",
+                  controller: _contact,
+                  isContact: true,
+              ),
+              CustomProfileTextField(
+                  label: "Bio",
+                  controller: _bio
+              )
+            ],
+          ),
+      ),
     );
   }
+
+  // AVI section
+  Widget _aviImage() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 0),
+      height: 90,
+      width: 90,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.white, width: 5),
+        shape: BoxShape.circle,
+        image: _banner.path == ""
+            ? DecorationImage(
+              image: Image.asset(
+                "assets/images/AshLogo.jpg",
+              ).image
+            )
+            : DecorationImage(image:
+              Image.file(
+                _avi,
+                fit: BoxFit.cover,
+              ).image
+            ),
+      ),
+      child: CircleAvatar(
+        radius: 40,
+        backgroundImage: _avi.path == ""
+            ? Image.asset(
+              "assets/images/AshLogo.jpg",
+            ).image
+            : Image.file(
+            _avi,
+            fit: BoxFit.cover,
+            ).image,
+        child: Container(
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.black38,
+          ),
+          child: Center(
+            child: IconButton(
+              onPressed: uploadAVI,
+              icon: const Icon(Icons.camera_alt, color: Colors.white),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // banner section
+  Widget _bannerImage(){
+    return Container(
+      height: 180,
+      decoration: BoxDecoration(
+        image: _banner.path == ""
+        ? DecorationImage(
+            image: Image.asset(
+              "assets/images/AshLogo.jpg",
+            ).image
+          )
+        : DecorationImage(image: 
+            Image.file(
+              _banner,
+              fit: BoxFit.cover,
+            ).image
+          )
+      ),
+      child: Container(
+        decoration: const BoxDecoration(
+          color: Colors.black45,
+        ),
+        child: Stack(
+          children: [
+            _banner.path != ""
+                ? Image.file(
+                _banner,)
+                // fit: BoxFit.fill, width: MediaQuery.of(context).size.width)
+                : Image.asset(
+                    "assets/images/AshLogo.jpg",
+                    fit: BoxFit.fill,
+            ),
+            Center(
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    color: Colors.black38),
+                child: IconButton(
+                  onPressed: uploadBanner,
+                  icon: const Icon(Icons.camera_alt, color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  //upload an image for the avi
+  void uploadAVI() {
+    openImagePicker(context, (file) {
+      setState(() {
+        _avi = file;
+      });
+    });
+  }
+
+  // upload an image for the banner
+  void uploadBanner() {
+    openImagePicker(context, (file) {
+      setState(() {
+        _banner = file;
+      });
+    });
+  }
+
+  // openImagePicker(BuildContext context, Function(File) onImageSelected) {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return Container(
+  //         height: 100,
+  //         padding: const EdgeInsets.all(10),
+  //         child: SingleChildScrollView(
+  //           child: Column(
+  //             children: <Widget>[
+  //               const Text(
+  //                 'Pick an image',
+  //                 style: TextStyle(fontWeight: FontWeight.bold),
+  //               ),
+  //               const SizedBox(height: 10),
+  //               Row(
+  //                 children: <Widget>[
+  //                   Expanded(
+  //                     child: CustomSubmitButton(
+  //                       text: "Use Camera",
+  //                       textColor: Colors.white,
+  //                       color: const Color(0xFFCB6E74),
+  //                       borderRadius: 5,
+  //                       onPressed: () {
+  //                         getImage(context, ImageSource.camera, onImageSelected);
+  //                       },
+  //                     ),
+  //                   ),
+  //                   const SizedBox(
+  //                     width: 10,
+  //                   ),
+  //                   Expanded(
+  //                     child: CustomSubmitButton(
+  //                       text: "Use Gallery",
+  //                       color: const Color(0xFFCB6E74),
+  //                       textColor: Colors.white,
+  //                       borderRadius: 5,
+  //                       onPressed: () {
+  //                         getImage(context, ImageSource.gallery, onImageSelected);
+  //                       },
+  //                     ),
+  //                   )
+  //                 ],
+  //               )
+  //             ],
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
+  //
+  // getImage(BuildContext context, ImageSource source,
+  //     Function(File) onImageSelected) {
+  //       ImagePicker().pickImage(source: source, imageQuality: 50).then((
+  //           XFile? file,
+  //           ) {
+  //
+  //         onImageSelected(File(file!.path));
+  //         Navigator.pop(context);
+  //       });
+  // }
 }

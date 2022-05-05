@@ -173,9 +173,11 @@ class _NewPostState extends State<NewPost> {
               }
             ),
           )
-
         ],
       )
     );
   }
+
+
+
 }

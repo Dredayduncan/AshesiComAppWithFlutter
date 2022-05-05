@@ -64,6 +64,7 @@ class _ScreenManagerState extends State<ScreenManager> {
       _clickedProfile = false;
       _selectedIndex = index;
       _currentPage = _getPage(_selectedIndex);
+      getProfileData();
     });
   }
 
@@ -85,11 +86,13 @@ class _ScreenManagerState extends State<ScreenManager> {
 
       case 1:
         _title = CustomSearchBar(
-            controller: _searchController,
-            hint: "Search AshesiCom"
+          authID: widget.auth.currentUser!.uid,
+          controller: _searchController,
+          hint: "Search AshesiCom",
+          onSearch: () {},
         );
 
-        return const SearchScreen();// return the search page as a widget
+        return SearchScreen(authID: widget.auth.currentUser!.uid,);// return the search page as a widget
 
       case 2:
         _title = const Text(
@@ -100,14 +103,6 @@ class _ScreenManagerState extends State<ScreenManager> {
         );
         return Messages(auth: widget.auth,); // return the messages page as a widget
 
-      // case 3:
-      //   _title = const Text(
-      //     "",
-      //     style: TextStyle(
-      //         color: Colors.black
-      //     ),
-      //   );
-      //   return Profile(authID: widget.auth.currentUser!.uid,uid: widget.auth.currentUser!.uid,); // return the profile page as a widget
       }
 
     _title = const Text("Page Not Found");
@@ -120,7 +115,7 @@ class _ScreenManagerState extends State<ScreenManager> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: _currentPage, // _clickedProfile == false ? _getPage(_selectedIndex) : _getProfile(),
-        appBar: _clickedProfile == false ? AppBar(
+        appBar: _selectedIndex == 1 ? null : _clickedProfile == false ? AppBar(
           backgroundColor: const Color(0xFFD0BBC4),
           elevation: 0,
           leading: _selectedIndex == 1 ? null : Container(

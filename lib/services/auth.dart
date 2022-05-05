@@ -27,7 +27,7 @@ class Auth {
   }
 
   // Sign up with email and password
-  Future<User?>createUserWithEmailAndPassword({required String email, required String password, required String username}) async {
+  Future<User?>createUserWithEmailAndPassword({required String email, required password, required username, required contact}) async {
     final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password
@@ -35,8 +35,9 @@ class Auth {
 
     try {
       Database(authID: userCredential.user!.uid).userSignUp(
-          uid: userCredential.user?.uid,
-          username: username,
+        uid: userCredential.user?.uid,
+        username: username,
+        contact: contact
       );
     } catch (e) {
       return null;

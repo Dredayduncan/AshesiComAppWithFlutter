@@ -13,36 +13,36 @@ class WelcomeScreen extends StatelessWidget {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+
           Padding(
-            padding: const EdgeInsets.only(top: 150.0),
+            padding: const EdgeInsets.only(top: 100.0),
             child: Stack(
+              alignment: Alignment.bottomCenter,
               children: [
-                Container(
-                  child: Image.asset("assets/images/ashesicom.png"),
+                Image.asset(
+                  "assets/images/ashesicom.png",
+                  fit: BoxFit.fill,
                 ),
-                const Positioned(
-                    top: 300,
-                    left: 110,
-                    child: Text(
-                      "AshesiCom",
-                      style: TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold
-                      ),
-                    )
+                const Text(
+                  "AshesiCom",
+                  style: TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold
+                  ),
                 )
               ],
             ),
           ),
-          Expanded(
-            child: Align(
-              alignment: FractionalOffset.bottomCenter,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 60.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
+          Spacer(),
+          Align(
+            alignment: FractionalOffset.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 60.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
                       onPressed: () {
                         Navigator.pushReplacement(
                             context,
@@ -65,8 +65,10 @@ class WelcomeScreen extends StatelessWidget {
                         )
                       ),
                     ),
-                    const SizedBox(width: 15.0,),
-                    ElevatedButton(
+                  ),
+                  const SizedBox(width: 15.0,),
+                  Expanded(
+                    child: ElevatedButton(
                       onPressed: () {
                         Navigator.pushReplacement(
                             context,
@@ -89,8 +91,8 @@ class WelcomeScreen extends StatelessWidget {
                           )
                       ),
                     ),
-                  ],
-                ),
+                  )
+                ],
               ),
             ),
           )

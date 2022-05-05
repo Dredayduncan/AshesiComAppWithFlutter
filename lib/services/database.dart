@@ -35,6 +35,61 @@ class Database {
 
   }
 
+  // Get search results
+  Future<List> getSearchResults({searchValue}) async {
+
+    // // List the user's posts and posts of the people the user follows
+    // List posts = await getUserPosts(uid: authID);
+
+    //Get all the people the user is following
+    return FirebaseFirestore.instance.collection("Posts").get().then((value) async {
+      List<DocumentSnapshot> allDocs = value.docs;
+
+      final allPosts = [];
+
+      // get the posts of all the users being followed
+      for (var element in allDocs) {
+        Map<String, dynamic>? post = element.data() as Map<String, dynamic>?;
+
+        if (post!['text'].toString().contains(searchValue)) {
+          // get the user
+          Map<String, dynamic>? userInfo = await getUserInfo(uid: post['poster'].id);
+
+          // Get the number of comments, likes and reposts on the post
+          int comments = await getNumberOfComments(postID :post["postID"].toString());
+          int likes = await getNumberOfLikes(postID :post["postID"].toString());
+          int reposts = await getNumberOfRePosts(postID :post["postID"].toString());
+          bool liked = await hasLiked(postID: post["postID"]);
+          bool rePosted = await hasRePost(postID: post["postID"]);
+
+
+          // Add to posts if found
+          allPosts.add(
+              Post(
+                postID: post["postID"].toString(),
+                authID: authID,
+                uid: post["poster"].id,
+                avatar: userInfo!['avi'],
+                username: userInfo['username'],
+                name: userInfo['displayName'],
+                timeAgo: timeago.format(post['timePosted'].toDate(), locale: 'en_short'),
+                text: post['text'],
+                media: post['image'],
+                comments: comments.toString(),
+                reposts: reposts.toString(),
+                favorites: likes.toString(),
+                hasLiked: liked,
+                hasRePosted: rePosted,
+              )
+          );
+        }
+      }
+
+      return allPosts;
+    });
+
+  }
+
   // Get a list of people the user is following
   Future<List<dynamic>?> getListOfFollowing({uid}) async {
     // Get the data from the database
@@ -719,7 +774,7 @@ class Database {
 
   // PROFILE UPDATE
   //Insert a new user into the database
-  Future<void> userSignUp({uid, username}) async {
+  Future<void> userSignUp({uid, username, contact}) async {
     CollectionReference ref = FirebaseFirestore.instance.collection("Users");
 
     await ref.doc(uid).set({
@@ -728,6 +783,7 @@ class Database {
       "bio": "",
       "avi": "",
       "banner": "",
+      "contact": contact
     })
     .then((value) => true)
     .catchError((error) => false);
@@ -735,15 +791,16 @@ class Database {
   }
 
   // Update a user's information when they save their profile
-  Future<void> userProfileUpdate({uid, displayName, bio, avi, banner}) async {
+  Future<bool> userProfileUpdate({uid, displayName, bio, avi, banner}) async {
     CollectionReference ref = FirebaseFirestore.instance.collection("Users");
 
-    await ref.doc(uid).update({
+    return await ref.doc(uid).update({
       "displayName": displayName,
       "bio": bio,
       "avi": avi,
       "banner": banner,
-    });
+    }).then((value) => true)
+    .catchError((error) => false);
   }
 
 }

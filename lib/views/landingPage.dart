@@ -35,7 +35,6 @@ class _LandingPageState extends State<LandingPage> {
             return const WelcomeScreen();
           }
 
-
           return ScreenManager(auth: auth);
           }
 
