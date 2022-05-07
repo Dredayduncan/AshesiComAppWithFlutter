@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:ashesicom/common_widgets/message.dart';
@@ -282,41 +283,6 @@ class Database {
     return false;
   }
 
-  // Get user's messages
-  Future<List> getUserMessages({uid}) async {
-    // Get the data from the database
-    QuerySnapshot<Map<String, dynamic>> query = await FirebaseFirestore.instance
-        .collection("Messages")
-        .get();
-
-    // Get the messages
-    var messages = query.docs.map((data) => data.data());
-
-    final allMessages = [];
-
-    // Loop through the data to count the number of people the user is following
-    for (var message in messages) {
-      if (message["sender"].id == uid) {
-
-        // Get the recipient's info
-        Map<String, dynamic>? recipient = await getUserInfo(uid: message['recipient']);
-
-        // Add to messages if found
-        allMessages.add(
-          Message(
-            recipient: recipient,
-            authID: authID,
-            chatID: message['chatID'],
-          )
-        );
-      }
-    }
-
-    return allMessages;
-  }
-
-  // Get user's chat
-
   // Check if the user has liked a post
   Future<bool> hasLiked({postID}) async {
     // Get the data from the database
@@ -417,6 +383,180 @@ class Database {
     }
 
     return totalFollowers;
+  }
+
+  // Get the users to message list
+  Future<List> getUsersToMessage(searchValue) async {
+
+    //Get all the posts
+    return FirebaseFirestore.instance.collection("Users").get().then((value) async {
+      List<DocumentSnapshot> allDocs = value.docs;
+
+      final allUsers = [];
+
+      // loop through the posts
+      for (var element in allDocs) {
+        Map<String, dynamic>? user = element.data() as Map<String, dynamic>?;
+
+        // Check if the post is a comment and a comment of the given post
+        if ((user!["displayName"].contains(searchValue) || user['username'].contains(searchValue) && element.reference.id != authID )) {
+
+          // Add to posts if found
+          allUsers.add(
+              Message(
+                recipientID: element.reference.id,
+                authID: authID,
+                avatar: user['avi'],
+                username: user['username'],
+                displayName: user['displayName'],
+                contact: user['contact']
+              )
+          );
+        }
+      }
+
+      return allUsers;
+    });
+  }
+
+  // Check if conversation exists
+  Future<bool> hasConversation(userID) async {
+
+    //Get all the posts
+    return FirebaseFirestore.instance.collection("Messages").get().then((value) async {
+      List<DocumentSnapshot> allDocs = value.docs;
+
+      // loop through the posts
+      for (var element in allDocs) {
+        Map<String, dynamic>? message = element.data() as Map<String, dynamic>?;
+
+        // Check if the user has messaged userID
+        if (message!['sender'].id == authID &&  message['recipient'].id == userID) {
+
+          return true;
+        }
+      }
+
+      return false;
+    });
+  }
+
+  // Send a chat
+  Future<dynamic> sendChat({chatID, recipientID, chat}) async {
+    CollectionReference chats = FirebaseFirestore.instance.collection("Chats");
+
+    // Check if this user has a conversation with the other
+    // bool hasConvo = await hasConversation(recipientID);
+    print("OVER HERE: $chatID");
+
+    if (chatID != ""){
+      return chats.doc(chatID).update({
+        "chat": FieldValue.arrayUnion([
+          {
+            "senderID": FirebaseFirestore.instance.collection('Users').doc(
+                authID),
+            "chat": chat,
+            "timeSent": DateTime.now()
+          }
+          ])
+      })
+        .then((value) => chatID)
+        .catchError((error) => null);
+    }
+
+    int len = 0;
+    await chats.get().then((value) => len = value.docs.length);
+
+    len = len + 1;
+    return chats.doc(len.toString()).set({
+      "chat": FieldValue.arrayUnion([
+        {
+          "senderID": FirebaseFirestore.instance.collection('Users').doc(authID),
+          "chat": chat,
+          "timeSent": DateTime.now()
+        }
+      ])
+    }).then((value) {
+
+      return addMessage(
+        recipientID: recipientID,
+        chatID: FirebaseFirestore.instance.collection('Chats').doc(len.toString()),
+      );
+    })
+      .catchError((error) => null);
+  }
+
+  // Add conversation to message
+  Future<dynamic> addMessage({recipientID, chatID}) {
+    //Get the data
+    CollectionReference messages = FirebaseFirestore.instance.collection("Messages");
+
+    return messages.add({
+      "sender": FirebaseFirestore.instance.collection('Users').doc(authID),
+      "recipient": FirebaseFirestore.instance.collection('Users').doc(recipientID),
+      "chatID": chatID
+    })
+      .then((value) => chatID.id)
+      .catchError((error) => null);
+  }
+
+  // Get user's chats
+  Future<List> getChats(chatID) async {
+
+    //Get all the posts
+    return FirebaseFirestore.instance.collection("Chats").doc(chatID).get().then((value) {
+      List chats = value['chat'];
+      chats.sort((a, b) {
+        var adate = a['timeSent'].toDate().toString();
+        var bdate = b['timeSent'].toDate().toString();
+        return bdate.compareTo(adate);
+      });
+
+      return chats;
+    });
+  }
+
+
+
+  // Get the user's message list
+  Future<List> getUserMessageList() async {
+
+    //Get all the posts
+    return FirebaseFirestore.instance.collection("Messages").get().then((value) async {
+      List<DocumentSnapshot> allDocs = value.docs;
+
+      final allMessages = [];
+
+      // loop through the posts
+      for (var element in allDocs) {
+        Map<String, dynamic>? message = element.data() as Map<String, dynamic>?;
+
+        // Check if the post is a comment and a comment of the given post
+        if (message!["sender"].id == authID) {
+
+          // get the user
+          Map<String, dynamic>? recipientInfo = await getUserInfo(uid: message['recipient'].id);
+
+          List chats = await getChats(message['chatID'].id);
+
+          // Add to posts if found
+          allMessages.add(
+              Message(
+                chatID: message['chatID'].id,
+                recipientID: message['recipient'].id,
+                authID: authID,
+                avatar: recipientInfo!['avi'],
+                username: recipientInfo['username'],
+                displayName: recipientInfo['displayName'],
+                contact: recipientInfo['contact'],
+                lastMessage: chats[0],
+              )
+          );
+        }
+      }
+
+      return allMessages;
+    });
   }
   
   // Get the user's posts
@@ -810,7 +950,7 @@ class Database {
   }
 
   // Update a user's information when they save their profile
-  Future<bool> userProfileUpdate({uid, displayName, bio, avi, banner}) async {
+  Future<bool> userProfileUpdate({uid, displayName, bio, contact, avi, banner}) async {
     CollectionReference ref = FirebaseFirestore.instance.collection("Users");
 
     return await ref.doc(uid).update({
@@ -818,6 +958,7 @@ class Database {
       "bio": bio,
       "avi": avi,
       "banner": banner,
+      "contact": contact
     }).then((value) => true)
     .catchError((error) => false);
   }

@@ -37,7 +37,7 @@ class _SearchScreenState extends State<SearchScreen> {
     }
     else{
       setState(() {
-        _currentPage = _buildContent();
+        _currentPage = listOfPost();
       });
     }
   }
@@ -110,11 +110,11 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  Widget _buildContent() {
-    return Scaffold(
-      body: listOfPost(),
-    );
-  }
+  // Widget _buildContent() {
+  //   return Scaffold(
+  //     body: listOfPost(),
+  //   );
+  // }
 
   Widget listOfPost() {
     return Container(

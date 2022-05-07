@@ -89,6 +89,7 @@ class _EditProfileState extends State<EditProfile> {
                     uid: widget.authID,
                     displayName: _name.text,
                     bio: _bio.text,
+                    contact: _contact.text,
                     avi: _avi.path,
                     banner: _banner.path
                   ).then((value) {

@@ -35,6 +35,7 @@ dependencies:
   cloud_firestore:
   flutter_svg: ^1.0.0
   status_alert: ^1.0.0
+  flutter_phone_direct_caller: ^2.1.1
 
   flutter:
     sdk: flutter
