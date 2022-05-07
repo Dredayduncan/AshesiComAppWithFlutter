@@ -294,7 +294,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                             "Post",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 12
+                                fontSize: 10
                             ),
                           ),
 
@@ -304,7 +304,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                             "Reposts",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 12
+                                fontSize: 10
                             ),
                           ),
                         ),
@@ -313,7 +313,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                             "Media",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 12
+                                fontSize: 10
                             ),
                           ),
                         ),
@@ -322,7 +322,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                             "Likes",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 12
+                                fontSize: 10
                             ),
                           ),
                         )

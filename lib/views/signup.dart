@@ -87,6 +87,7 @@ class Signup extends StatelessWidget {
                     },
                     hintText: "+233231234564",
                     labeledText: "Contact",
+                    isContact: true,
                     controller: _contactController
                   ),
                   const SizedBox(height: 10,),

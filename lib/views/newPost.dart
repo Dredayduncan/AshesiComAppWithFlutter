@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:ashesicom/common_widgets/imageBottomSheet.dart';
 import 'package:ashesicom/services/database.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -26,16 +27,23 @@ class _NewPostState extends State<NewPost> {
   }
 
   Future getImage() async {
-    XFile? pickedImage = await ImagePicker().pickImage(source: ImageSource.gallery);
-
-    if (pickedImage != null){
+    openImagePicker(context, (file) {
 
       setState(() {
-        File file = File(pickedImage.path);
         _image = file;
       });
 
-    }
+    });
+    // XFile? pickedImage = await ImagePicker().pickImage(source: ImageSource.gallery);
+    //
+    // if (pickedImage != null){
+    //
+    //   setState(() {
+    //     File file = File(pickedImage.path);
+    //     _image = file;
+    //   });
+    //
+    // }
   }
 
   @override
@@ -75,23 +83,46 @@ class _NewPostState extends State<NewPost> {
                     image: _image != null ? _image.path : ""
                   ).then((value) {
                     if (value == true){
-                      StatusAlert.show(
-                        context,
-                        backgroundColor: const Color(0xFFCB6E74),
-                        duration: const Duration(seconds: 2),
-                        title: 'Success',
-                        subtitle: 'Your post was successful.',
-                        configuration: const IconConfiguration(icon: Icons.done),
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('Your post was successful.'),
+                          action: SnackBarAction(
+                            label: 'Dismiss',
+                            onPressed: () {
+                              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                            },
+                          ),
+                        ),
                       );
+                      // StatusAlert.show(
+                      //   context,
+                      //   backgroundColor: const Color(0xFFCB6E74),
+                      //   duration: const Duration(seconds: 2),
+                      //   title: 'Success',
+                      //   subtitle: 'Your post was successful.',
+                      //   configuration: const IconConfiguration(icon: Icons.done),
+                      // );
                     }
                     else{
-                      StatusAlert.show(
-                        context,
-                        backgroundColor: const Color(0xFFCB6E74),
-                        duration: const Duration(seconds: 2),
-                        title: 'Error',
-                        subtitle: 'Your post was unsuccessful.',
-                        configuration: const IconConfiguration(icon: Icons.error_outline),
+                      // StatusAlert.show(
+                      //   context,
+                      //   backgroundColor: const Color(0xFFCB6E74),
+                      //   duration: const Duration(seconds: 2),
+                      //   title: 'Error',
+                      //   subtitle: 'Your post was unsuccessful.',
+                      //   configuration: const IconConfiguration(icon: Icons.error_outline),
+                      // );
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('Your post was unsuccessful.'),
+                          action: SnackBarAction(
+                            label: 'Dismiss',
+                            onPressed: () {
+                              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                            },
+                          ),
+                        ),
                       );
                     }
 
@@ -177,7 +208,5 @@ class _NewPostState extends State<NewPost> {
       )
     );
   }
-
-
 
 }

@@ -6,6 +6,7 @@ class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
   final bool isPassword;
   final String? Function(String?)? validator;
+  final bool isContact;
 
   const CustomTextField({
     Key? key,
@@ -13,6 +14,7 @@ class CustomTextField extends StatelessWidget {
     required this.labeledText,
     required this.controller,
     required this.hintText,
+    this.isContact = false,
     this.isPassword = false
   }) : super(key: key);
 
@@ -24,6 +26,12 @@ class CustomTextField extends StatelessWidget {
           child: SizedBox(
             // width: textFieldWidth,
             child: TextFormField(
+              keyboardType: isContact == true
+                ? TextInputType.number
+                : null,
+              maxLength: isContact == true
+                  ? 10
+                  : null,
               validator: validator,
               obscureText: isPassword,
               controller: controller,

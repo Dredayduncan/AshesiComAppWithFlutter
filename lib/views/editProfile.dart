@@ -69,7 +69,7 @@ class _EditProfileState extends State<EditProfile> {
                   "Cancel",
                   style: TextStyle(
                     color: Color(0xFFCB6E74),
-                    fontSize: 16
+                    fontSize: 12
                   ),
                 )
             ),
@@ -77,7 +77,8 @@ class _EditProfileState extends State<EditProfile> {
               "Edit Profile",
               style: TextStyle(
                 color: Color(0xFFAF3A42),
-                fontWeight: FontWeight.bold
+                fontWeight: FontWeight.bold,
+                fontSize: 16
 
               )
             ),
@@ -125,7 +126,7 @@ class _EditProfileState extends State<EditProfile> {
                   "Save",
                   style: TextStyle(
                       color: Color(0xFFCB6E74),
-                      fontSize: 16
+                      fontSize: 12
                   )
                 )
             ),
@@ -177,7 +178,7 @@ class _EditProfileState extends State<EditProfile> {
       height: 90,
       width: 90,
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.white, width: 5),
+        border: Border.all(color: const Color(0xFFAF3A42), width: 5),
         shape: BoxShape.circle,
         image: _banner.path == ""
             ? DecorationImage(
@@ -232,7 +233,7 @@ class _EditProfileState extends State<EditProfile> {
         : DecorationImage(image: 
             Image.file(
               _banner,
-              fit: BoxFit.cover,
+              fit: BoxFit.fill,
             ).image
           )
       ),
@@ -284,67 +285,4 @@ class _EditProfileState extends State<EditProfile> {
       });
     });
   }
-
-  // openImagePicker(BuildContext context, Function(File) onImageSelected) {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return Container(
-  //         height: 100,
-  //         padding: const EdgeInsets.all(10),
-  //         child: SingleChildScrollView(
-  //           child: Column(
-  //             children: <Widget>[
-  //               const Text(
-  //                 'Pick an image',
-  //                 style: TextStyle(fontWeight: FontWeight.bold),
-  //               ),
-  //               const SizedBox(height: 10),
-  //               Row(
-  //                 children: <Widget>[
-  //                   Expanded(
-  //                     child: CustomSubmitButton(
-  //                       text: "Use Camera",
-  //                       textColor: Colors.white,
-  //                       color: const Color(0xFFCB6E74),
-  //                       borderRadius: 5,
-  //                       onPressed: () {
-  //                         getImage(context, ImageSource.camera, onImageSelected);
-  //                       },
-  //                     ),
-  //                   ),
-  //                   const SizedBox(
-  //                     width: 10,
-  //                   ),
-  //                   Expanded(
-  //                     child: CustomSubmitButton(
-  //                       text: "Use Gallery",
-  //                       color: const Color(0xFFCB6E74),
-  //                       textColor: Colors.white,
-  //                       borderRadius: 5,
-  //                       onPressed: () {
-  //                         getImage(context, ImageSource.gallery, onImageSelected);
-  //                       },
-  //                     ),
-  //                   )
-  //                 ],
-  //               )
-  //             ],
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
-  //
-  // getImage(BuildContext context, ImageSource source,
-  //     Function(File) onImageSelected) {
-  //       ImagePicker().pickImage(source: source, imageQuality: 50).then((
-  //           XFile? file,
-  //           ) {
-  //
-  //         onImageSelected(File(file!.path));
-  //         Navigator.pop(context);
-  //       });
-  // }
 }

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ashesicom/common_widgets/postActions.dart';
 import 'package:ashesicom/common_widgets/rippleButton.dart';
 import 'package:ashesicom/services/database.dart';
 import 'package:ashesicom/views/profile.dart';
@@ -103,7 +104,16 @@ class _PostState extends State<Post> {
             onTap: () {
               Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ViewPost(authID: widget.authID, postID: widget.postID,))
+                  MaterialPageRoute(builder: (context) => ViewPost(
+                    authID: widget.authID,
+                    postID: widget.postID,
+                    comments: widget.comments,
+                    reposts: widget.reposts,
+                    favorites: widget.favorites,
+                    hasLiked: widget.hasLiked,
+                    hasRePosted: widget.hasRePosted,
+                  )
+                  )
               );
             },
             child: PostText()
@@ -115,7 +125,17 @@ class _PostState extends State<Post> {
               child: Image.file(File(widget.media!), fit: BoxFit.cover,)
             ),
           ) : const SizedBox.shrink(),
-          PostButtons(context),
+          // PostButtons(context),
+          PostActions(
+            context: context,
+            postID: widget.postID,
+            authID: widget.authID,
+            comments: widget.comments,
+            reposts: widget.reposts,
+            favorites: widget.favorites,
+            hasRePosted: widget.hasRePosted,
+            hasLiked: widget.hasLiked,
+          )
         ],
       ),
     );
@@ -157,136 +177,6 @@ class _PostState extends State<Post> {
     return Text(
       widget.text,
       overflow: TextOverflow.clip,
-    );
-  }
-
-  Widget PostButtons(BuildContext context) {
-    //Standard like button
-    var favorite = FontAwesomeIcons.heart;
-    var favColor = Colors.black45;
-
-    // Standard repost button
-    var repost = FontAwesomeIcons.retweet;
-    var repostColor = Colors.black45;
-
-    //Check if the user has liked this post
-    if (widget.hasLiked){
-      favorite = FontAwesomeIcons.solidHeart;
-      favColor = const Color(0xFFCB6E74);
-    }
-
-    // Check if the user has reposted this post
-    if (widget.hasRePosted){
-      repostColor = const Color(0xFFCB6E74);
-    }
-
-    return Container(
-      margin: const EdgeInsets.only(top: 10.0, right: 20.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ViewPost(authID: widget.authID, postID: widget.postID,))
-              );
-            },
-            child: PostIconButton(FontAwesomeIcons.comment, widget.comments, Colors.black45)
-          ),
-          GestureDetector(
-            child: PostIconButton(
-              repost,
-              widget.reposts,
-              repostColor
-            ),
-            onTap: () => widget.hasRePosted == true ? onUnRePost(repostColor) : _onRepostPressed(context, repostColor),
-          ),
-          GestureDetector(
-            child: PostIconButton(
-              favorite,
-              widget.favorites,
-              favColor
-            ),
-            onTap: () => widget.hasLiked == true ? _db.unlike(postID: widget.postID) : _db.like(postID: widget.postID),
-          ),
-          PostIconButton(FontAwesomeIcons.share, '', Colors.black45),
-        ],
-      ),
-    );
-  }
-
-  Widget PostIconButton(IconData icon, String text, iconColor) {
-    return Row(
-      children: [
-        Icon(
-          text == "" ? null : icon,
-          size: 16.0,
-          color: iconColor,
-        ),
-        Container(
-          margin: const EdgeInsets.all(6.0),
-          child: Text(
-            text,
-            style: const TextStyle(
-              color: Colors.black45,
-              fontSize: 14.0,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // Undo the repost when post has already been reposted
-  void onUnRePost(repostColor){
-
-    setState(() {
-      //Actively change the icon color
-      repostColor = Colors.black45;
-
-      // Remove the repost from the database
-      _db.unRePost(postID: widget.postID);
-    });
-
-  }
-
-  // Show pop up menu when the repost button is clicked
-  void _onRepostPressed(BuildContext context, repostColor) {
-    showModalBottomSheet(context: context, builder: (context){
-      return Container(
-        height: 100,
-        color: const Color(0xFF737373),
-        child: Container(
-          child: _buildRepostModal(repostColor),
-          decoration: const BoxDecoration(
-              color: Color(0xFFD0BBC4),
-              borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(10.0),
-                  topRight: Radius.circular(10.0)
-              )
-          ),
-        ),
-
-      );
-    });
-  }
-
-  Column _buildRepostModal(repostColor){
-    return Column(
-      children: [
-        ListTile(
-          leading: const Icon(FontAwesomeIcons.retweet),
-          title: const Text("Repost"),
-          onTap: (){
-            setState(() {
-              repostColor = const Color(0xFFCB6E74);
-            });
-            _db.rePost(postID: widget.postID);
-            Navigator.pop(context);
-          },
-        ),
-      ],
     );
   }
 }

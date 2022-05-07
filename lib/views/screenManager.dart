@@ -85,13 +85,6 @@ class _ScreenManagerState extends State<ScreenManager> {
         return HomePage(auth: widget.auth); // return the home page as a widget
 
       case 1:
-        _title = CustomSearchBar(
-          authID: widget.auth.currentUser!.uid,
-          controller: _searchController,
-          hint: "Search AshesiCom",
-          onSearch: () {},
-        );
-
         return SearchScreen(authID: widget.auth.currentUser!.uid,);// return the search page as a widget
 
       case 2:

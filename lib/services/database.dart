@@ -38,9 +38,6 @@ class Database {
   // Get search results
   Future<List> getSearchResults({searchValue}) async {
 
-    // // List the user's posts and posts of the people the user follows
-    // List posts = await getUserPosts(uid: authID);
-
     //Get all the people the user is following
     return FirebaseFirestore.instance.collection("Posts").get().then((value) async {
       List<DocumentSnapshot> allDocs = value.docs;
@@ -133,7 +130,7 @@ class Database {
     })
     .then((value) => true)
     .catchError((error) => false);
-}
+  }
   
   // follow a given user
   Future<bool> follow({uid}) {
@@ -258,8 +255,6 @@ class Database {
         .then((value) => true)
         .catchError((error) => false);
   }
-
-  // Comment on a given post
 
   // Check if user is following another user
   Future<bool> isFollowing({currentUserID, otherUserID}) async {
@@ -641,63 +636,87 @@ class Database {
     return allLikes;
   }
 
+  // Make a post
+  Future<bool> comment({poster, text, mainPostID}) async {
+    // Get the data
+    CollectionReference posts = FirebaseFirestore.instance.collection("Posts");
+
+    int len = 0;
+    await posts.get().then((value) => len = value.docs.length);
+
+    len = len + 1;
+    return posts.doc(len.toString()).set({
+      "postID": len,
+      "poster": FirebaseFirestore.instance.collection('Users').doc(poster),
+      "text": text,
+      "timePosted": DateTime.now(),
+      "isComment" : {
+        "mainPostID": mainPostID
+      }
+    })
+      .then((value) => true)
+      .catchError((error) => false);
+  }
+
   // FOR TWEETS
   //Get the comments under a post
   Future<List> getPostComments({postID}) async {
-    // Get the data from the database
-    QuerySnapshot<Map<String, dynamic>> query = await FirebaseFirestore.instance
-        .collection("Comments")
-        .get();
 
-    // Get the user's posts
-    var posts = query.docs.map((data) => data.data());
+    //Get all the posts
+    return FirebaseFirestore.instance.collection("Posts").get().then((value) async {
+      List<DocumentSnapshot> allDocs = value.docs;
 
-    final allComments = [];
+      final allPosts = [];
 
-    // Loop through the data to get the comments under the post
-    for (var post in posts) {
-      if (post["mainPostID"].id == postID) {
+      // loop through the posts
+      for (var element in allDocs) {
+        Map<String, dynamic>? post = element.data() as Map<String, dynamic>?;
 
-        // Get the post details
-        Map<String, dynamic>? item = await getOnePost(postID: post["commentPostID"].id);
+        // Check if the post is a comment and a comment of the given post
+        if (post!.containsKey("isComment") && post["isComment"]["mainPostID"].toString() == postID) {
 
-        //Get poster details
-        Map<String, dynamic>? posterInfo = await getUserInfo(uid: item!['poster'].id);
+          // get the user
+          Map<String, dynamic>? userInfo = await getUserInfo(uid: post['poster'].id);
 
-        // Get the number of comments, likes and reposts on the post
-        int comments = await getNumberOfComments(postID :post["commentPostID"].id);
-        int likes = await getNumberOfLikes(postID :post["commentPostID"].id);
-        int reposts = await getNumberOfRePosts(postID :post["commentPostID"].id);
+          // Get the number of comments, likes and reposts on the post
+          int comments = await getNumberOfComments(postID :post["postID"].toString());
+          int likes = await getNumberOfLikes(postID :post["postID"].toString());
+          int reposts = await getNumberOfRePosts(postID :post["postID"].toString());
+          bool liked = await hasLiked(postID: post["postID"]);
+          bool rePosted = await hasRePost(postID: post["postID"]);
 
 
-        // Increment total if found
-        allComments.add(
-            Post(
-              postID: post["postID"].toString(),
-              authID: authID,
-              uid: item["poster"].id,
-              avatar: posterInfo!['avi'],
-              username: posterInfo['username'],
-              name: posterInfo['displayName'],
-              timeAgo:  timeago.format(item['timePosted'].toDate(), locale: 'en_short'),
-              text: item['text'],
-              media: item['image'],
-              comments: comments.toString(),
-              reposts: reposts.toString(),
-              favorites: likes.toString(),
-            )
-        );
+          // Add to posts if found
+          allPosts.add(
+              Post(
+                postID: post["postID"].toString(),
+                authID: authID,
+                uid: post["poster"].id,
+                avatar: userInfo!['avi'],
+                username: userInfo['username'],
+                name: userInfo['displayName'],
+                timeAgo: timeago.format(post['timePosted'].toDate(), locale: 'en_short'),
+                text: post['text'],
+                media: post['image'],
+                comments: comments.toString(),
+                reposts: reposts.toString(),
+                favorites: likes.toString(),
+                hasLiked: liked,
+                hasRePosted: rePosted,
+              )
+          );
+        }
       }
-    }
 
-    return allComments;
+      return allPosts;
+    });
   }
 
   // Get the number comments on a post
   Future<int> getNumberOfComments({postID}) async {
     // Get the data from the database
     QuerySnapshot<Map<String, dynamic>> query = await FirebaseFirestore.instance
-        .collection("Comments")
+        .collection("Posts")
         .get();
 
     // Get the user's posts
@@ -711,7 +730,7 @@ class Database {
 
     // Loop through the data to count the number of reposts
     for (var post in posts) {
-      if (post["mainPostID"].id == postID) {
+      if (post.containsKey("isComment") && post['isComment']["mainPostID"].toString() == postID) {
         numComments += 1;
       }
     }
