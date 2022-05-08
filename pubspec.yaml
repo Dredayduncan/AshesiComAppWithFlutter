@@ -36,6 +36,10 @@ dependencies:
   flutter_svg: ^1.0.0
   status_alert: ^1.0.0
   flutter_phone_direct_caller: ^2.1.1
+  firebase_storage:
+  path:
+#  geolocator: ^8.2.1
+#  geocoding:
 
   flutter:
     sdk: flutter

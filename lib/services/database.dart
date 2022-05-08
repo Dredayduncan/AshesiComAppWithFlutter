@@ -1,10 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:ashesicom/common_widgets/message.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:path/path.dart' as path;
+import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+// import 'package:geolocator/geolocator.dart';
+// import 'package:geocoding/geocoding.dart';
 import '../common_widgets/post.dart';
 
 class Database {
@@ -36,6 +37,37 @@ class Database {
 
   }
 
+  // // Get current location
+  // Future<String> _getCurrentLocation(){
+  //   return Geolocator.getCurrentPosition(
+  //     forceAndroidLocationManager: true
+  //   ).then((value) async {
+  //     return await _getAddressFromLatLng(value);
+  //   });
+  // }
+  //
+  // // Get readable version of location
+  // Future<String> _getAddressFromLatLng(position) async {
+  //   try {
+  //     List<Placemark> placemarks = await placemarkFromCoordinates(
+  //         position.latitude,
+  //         position.longitude
+  //     );
+  //
+  //     print(placemarks);
+  //
+  //     Placemark place = placemarks[0];
+  //
+  //     if (placemarks.isEmpty){
+  //       return "Unknown";
+  //     }
+  //     return "${place.locality}, ${place.country}";
+  //   } catch (e) {
+  //     print(e.toString());
+  //     return "N/A";
+  //   }
+  // }
+
   // Get search results
   Future<List> getSearchResults({searchValue}) async {
 
@@ -64,6 +96,7 @@ class Database {
           // Add to posts if found
           allPosts.add(
               Post(
+                location: "Ashesi",
                 postID: post["postID"].toString(),
                 authID: authID,
                 uid: post["poster"].id,
@@ -114,6 +147,26 @@ class Database {
 
   // USER FUNCTIONS
 
+  //Upload avi to cloud
+  Future<bool> uploadIMGToCloud(image, postID) async {
+    if (image == ""){
+      return true;
+    }
+
+    final fileName = path.basename(image);
+    final destination = "$authID/$postID/$fileName";
+
+    try {
+      final ref = firebase_storage.FirebaseStorage.instance.ref(destination);
+      await ref.putFile(File(image));
+      return true;
+
+    }catch(e){
+      return false;
+    }
+
+  }
+
   // Make a post
   Future<bool> post({poster, text, image}) async {
     // Get the data
@@ -121,6 +174,9 @@ class Database {
 
     int len = 0;
     await posts.get().then((value) => len = value.docs.length);
+    len = len + 1;
+
+    await uploadIMGToCloud(image, len);
 
     return posts.doc(len.toString()).set({
       "postID": len,
@@ -585,14 +641,23 @@ class Database {
         bool liked = await hasLiked(postID: post["postID"]);
         bool rePosted = await hasRePost(postID: post["postID"]);
 
+        // print(await _getCurrentLocation());
+
+        // // print("OVER HERE: ${ userInfo!['avi']}");
+        // String avatar = userInfo!['avi'] == ""
+        //     ? ""
+        //     : await firebase_storage.FirebaseStorage.instance.ref().child('$authID/${post["postID"].toString()}').child(path.basename(userInfo['avi'])).getDownloadURL(); //.child(post["postID"].toString()).child(path.basename(userInfo!['avi'])).getDownloadURL();
+        //
+        // print(avatar);
 
         // Add to posts if found
         allPosts.add(
           Post(
+            location: "Ashesi",
             postID: post["postID"].toString(),
             authID: authID,
             uid: post["poster"].id,
-            avatar: userInfo!['avi'],
+            avatar: userInfo!['avi'], //avatar,
             username: userInfo['username'],
             name: userInfo['displayName'],
             timeAgo: timeago.format(post['timePosted'].toDate(), locale: 'en_short'),
@@ -639,6 +704,7 @@ class Database {
         // Increment total if found
         allPostsWithMedia.add(
             Post(
+              location: "Ashesi",
               postID: post["postID"].toString(),
               authID: authID,
               uid: post["poster"].id,
@@ -704,6 +770,7 @@ class Database {
         // Increment total if found
         allReposts.add(
             Post(
+              location: "Ashesi",
               postID: post["postID"].toString(),
               authID: authID,
               uid: item["poster"].id,
@@ -756,6 +823,7 @@ class Database {
         // Increment total if found
         allLikes.add(
             Post(
+              location: "Ashesi",
               postID: post["postID"].toString(),
               authID: authID,
               uid: item["poster"].id,
@@ -829,6 +897,7 @@ class Database {
           // Add to posts if found
           allPosts.add(
               Post(
+                location: "Ashesi",
                 postID: post["postID"].toString(),
                 authID: authID,
                 uid: post["poster"].id,

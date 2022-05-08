@@ -34,6 +34,7 @@ class _ChatPageState extends State<ChatPage> {
   late Database _db;
   late List chats; // the chat log
   final TextEditingController _messageController = TextEditingController();
+  final ScrollController _controller = ScrollController();
 
   Widget _currentPage = const Center(
     child: CircularProgressIndicator(
@@ -92,7 +93,9 @@ class _ChatPageState extends State<ChatPage> {
           )
         ],
       ),
-      body: _currentPage,
+      body: SingleChildScrollView(
+        child: Container(child: _currentPage)
+      ),
       bottomSheet: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Container(
@@ -112,6 +115,11 @@ class _ChatPageState extends State<ChatPage> {
                     widget.chatID = value;
                     _messageController.clear();
                     _buildContent();
+                    _controller.animateTo(
+                      _controller.position.maxScrollExtent,
+                      curve: Curves.easeOut,
+                      duration: const Duration(milliseconds: 300),
+                    );
                   });
                 }
                 else{
@@ -153,11 +161,18 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   _buildContent() async {
+
+    if (widget.chatID == ""){
+      setState(() {
+        _currentPage = _chatScreenBody([]);
+      });
+    }
     chats = await _db.getChats(widget.chatID);
 
     setState(() {
       _currentPage = _chatScreenBody(chats);
     });
+
   }
 
   Widget _chatScreenBody(chats) {
@@ -170,10 +185,10 @@ class _ChatPageState extends State<ChatPage> {
       );
     }
     return ListView.builder(
-      // controller: _controller,
+      controller: _controller,
       shrinkWrap: true,
       reverse: true,
-      physics: const BouncingScrollPhysics(),
+      // physics: const BouncingScrollPhysics(),
       itemCount: chats.length,
       itemBuilder: (context, index) => chatMessage(chats[index]),
     );

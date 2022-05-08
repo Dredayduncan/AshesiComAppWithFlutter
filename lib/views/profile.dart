@@ -456,7 +456,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
         child: const Text(
           "Follow",
           style: TextStyle(
-              color: Color(0xFFAF3A42)
+              color: Colors.white
           ),
         ),
         onPressed: () {

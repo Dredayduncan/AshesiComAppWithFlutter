@@ -4,6 +4,8 @@ import 'package:ashesicom/common_widgets/profileTextField.dart';
 import 'package:ashesicom/services/database.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:path/path.dart' as path;
 
 import '../common_widgets/imageBottomSheet.dart';
 
@@ -92,8 +94,11 @@ class _EditProfileState extends State<EditProfile> {
                     contact: _contact.text,
                     avi: _avi.path,
                     banner: _banner.path
-                  ).then((value) {
-                      if (value == true){
+                  ).then((value) async {
+                      bool aviUpload = await uploadAVIToCloud();
+                      bool bannerUpload = await uploadBannerToCloud();
+                      if (value == true && aviUpload == true && bannerUpload == true ){
+
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: const Text('Profile has been updated!'),
@@ -286,4 +291,46 @@ class _EditProfileState extends State<EditProfile> {
       });
     });
   }
+
+  //Upload avi to cloud
+  Future<bool> uploadAVIToCloud() async {
+    if (_avi.path == ""){
+      return true;
+    }
+
+    final fileName = path.basename(_avi.path);
+    final destination = "${widget.authID}/avi/$fileName";
+
+    try {
+      final ref = firebase_storage.FirebaseStorage.instance.ref(destination);
+      await ref.putFile(_avi);
+      return true;
+
+    }catch(e){
+      return false;
+    }
+
+  }
+
+  //upload banner to cloud
+  Future<bool> uploadBannerToCloud() async {
+    if (_banner.path == ""){
+      return true;
+    }
+
+    final fileName = path.basename(_banner.path);
+    final destination = "${widget.authID}/banner/$fileName";
+
+    try {
+      final ref = firebase_storage.FirebaseStorage.instance.ref(destination);
+      await ref.putFile(_banner);
+      return true;
+
+    }catch(e){
+      return false;
+    }
+  }
+
+
+
 }

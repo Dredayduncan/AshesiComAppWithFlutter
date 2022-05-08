@@ -7,8 +7,9 @@ import 'package:status_alert/status_alert.dart';
 
 class NewPost extends StatefulWidget {
   final String authID;
+  final String image;
 
-  NewPost({Key? key,  required this.authID}) : super(key: key,);
+  NewPost({Key? key,  required this.authID, required this.image}) : super(key: key,);
 
   @override
   State<NewPost> createState() => _NewPostState();
@@ -83,6 +84,7 @@ class _NewPostState extends State<NewPost> {
                     image: _image != null ? _image.path : ""
                   ).then((value) {
                     if (value == true){
+
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: const Text('Your post was successful.'),
@@ -155,11 +157,18 @@ class _NewPostState extends State<NewPost> {
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.white, width: 1),
                     borderRadius: BorderRadius.circular(28),
-                    image: const DecorationImage(
-                        image: NetworkImage(
-                          "https://images.unsplash.com/photo-1547721064-da6cfb341d50",
-                        ),
-                        fit: BoxFit.cover),
+                    image: widget.image == ""
+                        ? DecorationImage(
+                        image: Image.asset(
+                          "assets/images/AshLogo.jpg",
+                        ).image
+                    )
+                        : DecorationImage(image:
+                    Image.file(
+                      File(widget.image),
+                      fit: BoxFit.fill,
+                    ).image
+                    ),
                   ),
                 ),
               ),

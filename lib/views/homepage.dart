@@ -15,6 +15,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late List posts;
+  late String userAviUser;
   late Database db;
   Widget _currentPage = const Scaffold(
     body: Center(
@@ -26,6 +27,8 @@ class _HomePageState extends State<HomePage> {
 
   generatePosts() async {
     posts = await db.getFeed();
+    Map<String, dynamic>? userInfo = await db.getUserInfo(uid: widget.auth.currentUser!.uid);
+    userAviUser  = userInfo!['avi'];
 
     setState(() {
       _currentPage = _buildContent();
@@ -55,7 +58,7 @@ class _HomePageState extends State<HomePage> {
         onPressed: () {
           Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => NewPost(authID: widget.auth.currentUser!.uid,))
+              MaterialPageRoute(builder: (context) => NewPost(image: userAviUser, authID: widget.auth.currentUser!.uid,))
           );
         },
       ),

@@ -24,6 +24,7 @@ class Post extends StatefulWidget {
   bool hasRePosted;
   bool hasLiked;
   final String uid;
+  final String location;
 
   Post(
       {Key? key,
@@ -36,6 +37,7 @@ class Post extends StatefulWidget {
         required this.timeAgo,
         required this.text,
         this.media,
+        required this.location,
         required this.comments,
         required this.reposts,
         required this.favorites,
@@ -174,9 +176,20 @@ class _PostState extends State<Post> {
   }
 
   Widget PostText() {
-    return Text(
-      widget.text,
-      overflow: TextOverflow.clip,
+    return Row(
+      children: [
+        Text(
+          widget.text,
+          overflow: TextOverflow.clip,
+        ),
+        Text(
+          ' - ${widget.location}',
+          style: TextStyle(
+            fontSize: 10,
+            color: const Color(0xFF808083)
+          ),
+        )
+      ],
     );
   }
 }
