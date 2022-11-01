@@ -1,16 +1,15 @@
-# ashesi_com
+#AshesiCom
+---
 
-A new Flutter project.
+A twitter clone for the community of a local university. It allows people belonging to this community to share their thoughts, current status and updates with the rest of the community through posts. Users of this application can react through likes, comments and reposts with these posts to create a sense of community through the interaction.
 
-## Getting Started
+## Functional Requirements
+- Users can share their thoughts with their rest of the community by posting just text, an image or a combination of both
+- Users can show their approval of other people's posts by liking the posts
+- Users can also follow other users to grow their network and community on the application
+- Users can view and edit their profiles 
+- Users can reply to and make comments on other people's posts on the application
+- Users can also search for other users on the platform 
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Mobile App UI
+![IMG_064FC60B54D2-1](https://user-images.githubusercontent.com/50704111/199143804-9ab59e50-bdbc-4283-8ee4-9cce39cc633b.jpeg)
